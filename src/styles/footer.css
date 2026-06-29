@@ -1,0 +1,17 @@
+/* 🦶 Footer */
+
+.site-footer {
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.site-footer__inner {
+  width: min(100% - 2rem, 1120px);
+  margin: 0 auto;
+  padding: var(--space-lg) 0;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-md);
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}

@@ -1,0 +1,36 @@
+/* 📱 Responsive */
+
+@media (max-width: 768px) {
+  .site-header__inner {
+    min-height: 64px;
+    gap: var(--space-sm);
+  }
+
+  .hamburger-button {
+    display: flex;
+    flex-shrink: 0;
+  }
+
+  .site-header__brand {
+    font-size: 1rem;
+    line-height: 1.1;
+  }
+
+  .site-header__nav {
+    display: none;
+  }
+
+  .site-header__actions {
+    flex-shrink: 0;
+  }
+
+  .button {
+    min-height: 40px;
+    padding: 0.65rem 1rem;
+  }
+
+  .site-footer__inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

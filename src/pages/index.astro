@@ -1,17 +1,21 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import AppShell from "../components/layout/AppShell.astro";
+import Container from "../components/ui/Container.astro";
 import { wedding } from "../data/wedding";
 ---
 
 <Layout title={wedding.websiteName}>
-  <main>
-    <h1>{wedding.websiteName}</h1>
-    <p>
-      The wedding of {wedding.couple.partnerOne.firstName} and
-      {wedding.couple.partnerTwo.firstName}.
-    </p>
+  <AppShell>
+    <Container as="main">
+      <h1>{wedding.websiteName}</h1>
+      <p>
+        The wedding of {wedding.couple.partnerOne.firstName} and
+        {wedding.couple.partnerTwo.firstName}.
+      </p>
 
-    <p>{wedding.date.display}</p>
-    <p>{wedding.venue.name}, {wedding.venue.location}</p>
-  </main>
+      <p>{wedding.date.display}</p>
+      <p>{wedding.venue.name}, {wedding.venue.location}</p>
+    </Container>
+  </AppShell>
 </Layout>

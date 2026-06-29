@@ -1,0 +1,18 @@
+/* 🏗️ Application Shell */
+
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-shell__content {
+  flex: 1;
+}
+
+/* 📦 Container */
+
+.container {
+  width: min(100% - 2rem, 1120px);
+  margin-inline: auto;
+}

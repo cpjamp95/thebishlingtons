@@ -1,0 +1,14 @@
+---
+import Header from "./Header.astro";
+import Footer from "./Footer.astro";
+---
+
+<div class="app-shell">
+  <Header />
+
+  <div class="app-shell__content">
+    <slot />
+  </div>
+
+  <Footer />
+</div>

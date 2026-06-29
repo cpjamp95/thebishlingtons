@@ -1,0 +1,11 @@
+---
+type Props = {
+  as?: keyof HTMLElementTagNameMap;
+};
+
+const { as: Tag = "div" } = Astro.props;
+---
+
+<Tag class="container">
+  <slot />
+</Tag>
