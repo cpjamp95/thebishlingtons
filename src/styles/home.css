@@ -50,20 +50,14 @@
 .invitation-card {
   position: relative;
 
-  width: 72%;
-  max-width: 92vw;
   aspect-ratio: 1481 / 2047;
+
+  width: min(78vw, calc(74svh * 1481 / 2047));
 
   color: var(--color-text);
   filter: drop-shadow(0 20px 50px rgba(43, 33, 24, 0.18));
 
   container-type: inline-size;
-}
-
-@media (min-width: 900px) {
-  .invitation-card {
-    width: 34%;
-  }
 }
 
 .invitation-card__content {
