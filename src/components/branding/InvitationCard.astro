@@ -3,36 +3,81 @@ import InvitationFrame from "./InvitationFrame.astro";
 import { wedding } from "../../data/wedding";
 ---
 
-<article class="invitation-card">
-  <InvitationFrame />
+<div class="invitation-flip">
+  <article class="invitation-card invitation-card--front">
+    <InvitationFrame />
 
-  <div class="invitation-card__content">
-    <p class="invitation-card__eyebrow">THE WEDDING OF</p>
+    <div class="invitation-card__content">
+      <p class="invitation-card__eyebrow">THE WEDDING OF</p>
 
-    <h1 class="invitation-card__names">
-      {wedding.couple.partnerOne.firstName.toUpperCase()}
-      <span class="surname">
-        {wedding.couple.partnerOne.surname.toUpperCase()}
-      </span>
+      <h1 class="invitation-card__names">
+        {wedding.couple.partnerOne.firstName.toUpperCase()}
+        <span class="surname">
+          {wedding.couple.partnerOne.surname.toUpperCase()}
+        </span>
 
-      <span class="ampersand">&amp;</span>
+        <span class="ampersand">&amp;</span>
 
-      {wedding.couple.partnerTwo.firstName.toUpperCase()}
-      <span class="surname">
-        {wedding.couple.partnerTwo.surname.toUpperCase()}
-      </span>
-    </h1>
+        {wedding.couple.partnerTwo.firstName.toUpperCase()}
+        <span class="surname">
+          {wedding.couple.partnerTwo.surname.toUpperCase()}
+        </span>
+      </h1>
 
-    <p class="invitation-card__details">
-      {wedding.date.display.toUpperCase()}
-      <br />
-      {wedding.venue.name.toUpperCase()}
-      <br />
-      {wedding.venue.location.toUpperCase()}
-    </p>
+      <p class="invitation-card__details">
+        {wedding.date.display.toUpperCase()}
+        <br />
+        {wedding.venue.name.toUpperCase()}
+        <br />
+        {wedding.venue.location.toUpperCase()}
+      </p>
 
-    <a href="#rsvp" class="invitation-card__rsvp">
-      <span>RSVP</span>
-    </a>
-  </div>
-</article>
+      <button type="button" class="invitation-card__rsvp" data-flip-card>
+        RSVP
+      </button>
+    </div>
+  </article>
+
+  <article class="invitation-card invitation-card--back">
+    <InvitationFrame />
+
+    <div class="invitation-card__content invitation-card__content--back">
+      <p class="invitation-card__eyebrow">RSVP</p>
+
+      <h2 class="invitation-card__back-title">Enter your invitation code</h2>
+
+      <form class="invitation-card__form">
+        <input
+          type="text"
+          name="invitation-code"
+          placeholder="Invitation code"
+          aria-label="Invitation code"
+        />
+
+        <button type="submit" class="invitation-card__rsvp"> Continue </button>
+      </form>
+
+      <button type="button" class="invitation-card__back-link" data-flip-card>
+        Back to invitation
+      </button>
+    </div>
+  </article>
+</div>
+
+<script>
+  const flipButtons = document.querySelectorAll("[data-flip-card]");
+
+  flipButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const flipCard = button.closest(".invitation-flip");
+      if (!flipCard) return;
+
+      flipCard.classList.remove("animate-flip");
+
+      void flipCard.offsetWidth;
+
+      flipCard.classList.add("animate-flip");
+      flipCard.classList.toggle("is-flipped");
+    });
+  });
+</script>

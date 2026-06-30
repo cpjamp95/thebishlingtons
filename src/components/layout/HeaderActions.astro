@@ -1,6 +1,46 @@
-<div class="header-countdown">
-  <span class="header-countdown__number">361</span>
-  <span class="header-countdown__label">DAYS TO GO</span>
+---
+import { wedding } from "../../data/wedding";
+---
+
+<div class="header-countdown" data-wedding-date={wedding.date.iso}>
+  <span class="header-countdown__number" data-countdown-number>360</span>
+  <span class="header-countdown__label" data-countdown-label>DAYS TO GO</span>
 </div>
 
 <button class="header-avatar" aria-label="Guest profile"> ○ </button>
+
+<script>
+  const countdown = document.querySelector("[data-wedding-date]");
+
+  if (countdown) {
+    const targetDate = countdown.getAttribute("data-wedding-date");
+    const numberEl = countdown.querySelector("[data-countdown-number]");
+    const labelEl = countdown.querySelector("[data-countdown-label]");
+
+    const [year, month, day] = targetDate.split("-").map(Number);
+
+    const weddingUtc = Date.UTC(year, month - 1, day);
+
+    const ukDateParts = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Europe/London",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).formatToParts(new Date());
+
+    const parts = Object.fromEntries(
+      ukDateParts
+        .filter((part) => part.type !== "literal")
+        .map((part) => [part.type, Number(part.value)]),
+    );
+
+    const todayUkUtc = Date.UTC(parts.year, parts.month - 1, parts.day);
+
+    const daysToGo = Math.ceil(
+      (weddingUtc - todayUkUtc) / (1000 * 60 * 60 * 24),
+    );
+
+    numberEl.textContent = String(daysToGo);
+    labelEl.textContent = daysToGo === 1 ? "DAY TO GO" : "DAYS TO GO";
+  }
+</script>
