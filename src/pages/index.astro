@@ -1,17 +1,14 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import AppShell from "../components/layout/AppShell.astro";
-import Container from "../components/ui/Container.astro";
+import HeroSection from "../components/sections/HeroSection.astro";
 import { wedding } from "../data/wedding";
-import InvitationCard from "../components/branding/InvitationCard.astro";
 ---
 
 <Layout title={wedding.websiteName}>
   <AppShell>
     <main class="home-page">
-      <section class="home-hero">
-        <InvitationCard />
-      </section>
+      <HeroSection />
     </main>
   </AppShell>
 </Layout>
