@@ -168,7 +168,7 @@
 
 .invitation-card__content {
   position: absolute;
-  inset: 24% 16% 18%;
+  inset: 21% 16% 21%;
 
   z-index: 1;
 
@@ -181,7 +181,8 @@
 }
 
 .invitation-card__content--back {
-  gap: var(--space-md);
+  inset: 10% 16% 10%;
+  gap: 2cqw;
 }
 
 .invitation-card__eyebrow {
@@ -211,7 +212,7 @@
 
 .invitation-card__names .surname {
   margin-top: 0.12em;
-  margin-bottom: 0.65em;
+  margin-bottom: 0.42em;
 
   color: var(--color-accent);
 
@@ -220,7 +221,7 @@
 }
 
 .invitation-card__names .ampersand {
-  margin: 0.25em 0 0.45em;
+  margin: 0.05em 0 0.2em;
 
   color: var(--color-accent);
 
@@ -245,6 +246,16 @@
   font-size: 7cqw;
   font-weight: 500;
   line-height: 1;
+}
+
+.invitation-card__back-copy {
+  max-width: 28ch;
+  margin: 0;
+
+  color: var(--color-muted);
+
+  font-size: 3cqw;
+  line-height: 1.55;
 }
 
 .invitation-card__form {
@@ -277,7 +288,7 @@
   justify-content: center;
 
   margin-top: 3.5cqw;
-  margin-bottom: 4.5cqw;
+  margin-bottom: 2cqw;
 
   padding: 1.3cqw 5.5cqw;
 
@@ -325,8 +336,39 @@
   margin-left: 2cqw;
 }
 
+.invitation-card__signin {
+  margin: -1.2cqw 0 0;
+
+  color: rgba(94, 73, 56, 0.72);
+
+  font-family: var(--font-body);
+  font-size: 2.9cqw;
+  line-height: 1.5;
+  letter-spacing: 0.03em;
+}
+
+.invitation-card__signin-link {
+  padding: 0;
+  margin-left: 0.25em;
+
+  border: none;
+  background: transparent;
+
+  color: var(--color-accent);
+
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+
+  transition: opacity var(--transition-fast);
+}
+
+.invitation-card__signin-link:hover {
+  opacity: 0.72;
+}
+
 .invitation-card__back-link {
-  margin-top: 2cqw;
+  margin-top: 00cqw;
 
   border: none;
   background: transparent;
@@ -336,4 +378,35 @@
   font-size: 2.8cqw;
   text-decoration: underline;
   cursor: pointer;
+}
+
+.invitation-card__error {
+  margin: 0;
+
+  color: var(--color-accent);
+
+  font-size: 2.6cqw;
+  line-height: 1.4;
+}
+.invitation-card__panel {
+  display: none;
+  width: 100%;
+}
+
+.invitation-flip[data-mode="rsvp"] .invitation-card__panel--rsvp {
+  display: flex;
+}
+
+.invitation-flip[data-mode="signin"] .invitation-card__panel--signin {
+  display: flex;
+}
+
+.invitation-flip[data-mode="create"] .invitation-card__panel--create {
+  display: flex;
+}
+
+.invitation-card__panel {
+  flex-direction: column;
+  align-items: center;
+  gap: 00cqw;
 }

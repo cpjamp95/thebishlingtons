@@ -32,9 +32,26 @@ import { wedding } from "../../data/wedding";
         {wedding.venue.location.toUpperCase()}
       </p>
 
-      <button type="button" class="invitation-card__rsvp" data-flip-card>
+      <button
+        type="button"
+        class="invitation-card__rsvp"
+        data-flip-card
+        data-card-mode="rsvp"
+      >
         RSVP
       </button>
+
+      <p class="invitation-card__signin">
+        Already registered?
+        <button
+          type="button"
+          class="invitation-card__signin-link"
+          data-flip-card
+          data-card-mode="signin"
+        >
+          Sign In
+        </button>
+      </p>
     </div>
   </article>
 
@@ -42,20 +59,110 @@ import { wedding } from "../../data/wedding";
     <InvitationFrame />
 
     <div class="invitation-card__content invitation-card__content--back">
-      <p class="invitation-card__eyebrow">RSVP</p>
+      <div class="invitation-card__panel invitation-card__panel--rsvp">
+        <p class="invitation-card__eyebrow">RSVP</p>
 
-      <h2 class="invitation-card__back-title">Enter your invitation code</h2>
+        <h2 class="invitation-card__back-title">Enter your password</h2>
 
-      <form class="invitation-card__form">
-        <input
-          type="text"
-          name="invitation-code"
-          placeholder="Invitation code"
-          aria-label="Invitation code"
-        />
+        <p class="invitation-card__back-copy">
+          Please enter the password included with your invitation.
+        </p>
 
-        <button type="submit" class="invitation-card__rsvp"> Continue </button>
-      </form>
+        <form class="invitation-card__form" data-guest-password-form>
+          <input
+            type="password"
+            name="guest-password"
+            placeholder="Password"
+            aria-label="Guest password"
+            autocomplete="off"
+            data-guest-password-input
+          />
+
+          <button type="submit" class="invitation-card__rsvp">Continue</button>
+        </form>
+
+        <p class="invitation-card__error" data-guest-password-error hidden>
+          That password could not be found.
+        </p>
+      </div>
+
+      <div class="invitation-card__panel invitation-card__panel--signin">
+        <p class="invitation-card__eyebrow">SIGN IN</p>
+
+        <h2 class="invitation-card__back-title">Welcome back</h2>
+
+        <p class="invitation-card__back-copy">
+          Sign in to return to your wedding dashboard.
+        </p>
+
+        <form class="invitation-card__form" data-sign-in-form>
+          <input
+            type="email"
+            name="email"
+            placeholder="Email address"
+            aria-label="Email address"
+            autocomplete="email"
+          />
+
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            aria-label="Password"
+            autocomplete="current-password"
+          />
+
+          <button type="submit" class="invitation-card__rsvp">Sign In</button>
+        </form>
+      </div>
+
+      <div class="invitation-card__panel invitation-card__panel--create">
+        <p class="invitation-card__eyebrow">WELCOME</p>
+
+        <h2 class="invitation-card__back-title">Create your account</h2>
+
+        <p class="invitation-card__back-copy">
+          Let’s get you set up for the wedding.
+        </p>
+
+        <form class="invitation-card__form" data-create-account-form>
+          <input
+            type="text"
+            name="guest-first-name"
+            placeholder="First name"
+            aria-label="First name"
+            autocomplete="given-name"
+            required
+          />
+
+          <input
+            type="text"
+            name="guest-surname"
+            placeholder="Surname"
+            aria-label="Surname"
+            autocomplete="family-name"
+            required
+          />
+
+          <input
+            type="email"
+            name="guest-email"
+            placeholder="Email address"
+            aria-label="Email address"
+            autocomplete="email"
+          />
+
+          <input
+            type="password"
+            name="guest-account-password"
+            placeholder="Create password"
+            aria-label="Create password"
+            autocomplete="new-password"
+          />
+
+          <button type="submit" class="invitation-card__rsvp">Continue</button>
+        </form>
+      </div>
 
       <button type="button" class="invitation-card__back-link" data-flip-card>
         Back to invitation
@@ -65,12 +172,25 @@ import { wedding } from "../../data/wedding";
 </div>
 
 <script>
+  const guestPasswords = {
+    "bish-day": "day",
+    "bish-evening": "evening",
+    "bish-party": "weddingParty",
+    "bish-admin": "admin",
+  };
+
   const flipButtons = document.querySelectorAll("[data-flip-card]");
+  const flipCard = document.querySelector(".invitation-flip");
 
   flipButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      const flipCard = button.closest(".invitation-flip");
       if (!flipCard) return;
+
+      const mode = button.dataset.cardMode;
+
+      if (mode) {
+        flipCard.dataset.mode = mode;
+      }
 
       flipCard.classList.remove("animate-flip");
 
@@ -79,5 +199,31 @@ import { wedding } from "../../data/wedding";
       flipCard.classList.add("animate-flip");
       flipCard.classList.toggle("is-flipped");
     });
+  });
+
+  const passwordForm = document.querySelector("[data-guest-password-form]");
+  const passwordInput = document.querySelector("[data-guest-password-input]");
+  const passwordError = document.querySelector("[data-guest-password-error]");
+
+  passwordForm?.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const password = passwordInput?.value.trim().toLowerCase();
+
+    if (!password || !flipCard) return;
+
+    const guestType = guestPasswords[password];
+
+    if (!guestType) {
+      passwordError?.removeAttribute("hidden");
+      return;
+    }
+
+    passwordError?.setAttribute("hidden", "");
+
+    document.documentElement.dataset.guestType = guestType;
+    flipCard.dataset.mode = "create";
+
+    console.log("Guest type:", guestType);
   });
 </script>
