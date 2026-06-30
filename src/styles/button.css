@@ -9,16 +9,18 @@
   min-height: 44px;
   padding: 0.75rem 1.5rem;
 
-  border: none;
+  border: 1px solid transparent;
   border-radius: 999px;
 
   font: inherit;
   font-weight: 600;
+  letter-spacing: 0.02em;
 
   cursor: pointer;
   transition:
-    background-color 0.2s ease,
-    color 0.2s ease,
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
     transform 0.2s ease;
 }
 
@@ -27,16 +29,20 @@
 }
 
 .button--primary {
-  background: var(--color-primary);
-  color: white;
+  background: var(--color-accent);
+  color: var(--color-text-light);
 }
 
 .button--primary:hover {
-  background: var(--color-primary-dark);
+  background: var(--color-accent-hover);
 }
 
 .button--secondary {
   background: transparent;
-  color: var(--color-primary);
-  border: 1px solid var(--color-border);
+  color: var(--color-accent);
+  border-color: var(--color-border);
+}
+
+.button--secondary:hover {
+  background: rgba(175, 118, 85, 0.08);
 }

@@ -1,0 +1,34 @@
+---
+import InvitationFrame from "./InvitationFrame.astro";
+import { wedding } from "../../data/wedding";
+---
+
+<article class="invitation-card">
+  <InvitationFrame />
+
+  <div class="invitation-card__content">
+    <p class="invitation-card__eyebrow">THE WEDDING OF</p>
+
+    <h1 class="invitation-card__names">
+      {wedding.couple.partnerOne.firstName.toUpperCase()}
+      <span class="surname">
+        {wedding.couple.partnerOne.surname.toUpperCase()}
+      </span>
+
+      <span class="ampersand">&amp;</span>
+
+      {wedding.couple.partnerTwo.firstName.toUpperCase()}
+      <span class="surname">
+        {wedding.couple.partnerTwo.surname.toUpperCase()}
+      </span>
+    </h1>
+
+    <p class="invitation-card__details">
+      {wedding.date.display.toUpperCase()}
+      <br />
+      {wedding.venue.name.toUpperCase()}
+      <br />
+      {wedding.venue.location.toUpperCase()}
+    </p>
+  </div>
+</article>

@@ -8,7 +8,7 @@ export const wedding = {
     },
 
     partnerTwo: {
-      firstName: "Alex",
+      firstName: "Alexandra",
       surname: "Bishop",
     },
   },
