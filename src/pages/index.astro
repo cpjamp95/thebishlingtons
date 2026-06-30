@@ -2,13 +2,19 @@
 import Layout from "../layouts/Layout.astro";
 import AppShell from "../components/layout/AppShell.astro";
 import HeroSection from "../components/sections/HeroSection.astro";
+import WelcomeSection from "../components/sections/WelcomeSection.astro";
 import { wedding } from "../data/wedding";
 ---
 
 <Layout title={wedding.websiteName}>
   <AppShell>
     <main class="home-page">
-      <HeroSection />
+      <div class="home-background" aria-hidden="true"></div>
+
+      <div class="home-content">
+        <HeroSection />
+        <WelcomeSection />
+      </div>
     </main>
   </AppShell>
 </Layout>

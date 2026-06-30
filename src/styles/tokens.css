@@ -1,11 +1,15 @@
 :root {
   /* ==========================================================
-     COLOURS
-     ========================================================== */
+   COLOURS
+   ========================================================== */
 
   /* Core UI */
   --color-bg: #f7f1e8;
   --color-surface: #fffaf3;
+
+  /* Wedding Stationery */
+  --color-paper: #f3eadb;
+  --color-paper-dark: #e8dbc7;
 
   /* Typography */
   --color-text: #2b2118;
