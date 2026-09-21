@@ -1,0 +1,47 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="The Bishlingtons · Wedding Admin">
+  <main class="admin-page" data-admin-app>
+    <header class="admin-header">
+      <a href="/" class="admin-header__brand">
+        <img src="/images/brand/logo.png" alt="The Bishlingtons" />
+      </a>
+      <div>
+        <p>Private wedding admin</p>
+        <h1>Guest Dashboard</h1>
+      </div>
+    </header>
+
+    <p class="admin-state" data-admin-state>Checking admin access…</p>
+
+    <div class="admin-dashboard" data-admin-dashboard hidden>
+      <section class="admin-summary" data-admin-summary></section>
+
+      <div class="admin-actions">
+        <button type="button" data-admin-export>Export catering CSV</button>
+        <button type="button" data-admin-refresh>Refresh</button>
+      </div>
+
+      <section class="admin-section">
+        <h2>Households &amp; RSVPs</h2>
+        <div class="admin-households" data-admin-households></div>
+      </section>
+
+      <section class="admin-section">
+        <h2>Guest messages</h2>
+        <div class="admin-feed" data-admin-messages></div>
+      </section>
+
+      <section class="admin-section">
+        <h2>Honeymoon suggestions</h2>
+        <div class="admin-feed" data-admin-suggestions></div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    import "../scripts/admin";
+  </script>
+</Layout>
