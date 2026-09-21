@@ -205,7 +205,7 @@ export function savePreview(household: Household, name: string) {
 export async function loadRsvpDetails(): Promise<RsvpDetails> {
   if (preview) {
     const home = await loadHome();
-    if (!home) return { guests: [] };
+    if (!home) return { menu_version: 1, guests: [] };
     let saved: Record<string, Omit<RsvpGuest, "id" | "name">> = {};
     try {
       saved = JSON.parse(localStorage.getItem(previewRsvpKey) || "{}");
