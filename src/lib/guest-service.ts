@@ -649,5 +649,25 @@ export async function signOut() {
   localStorage.removeItem(previewSocialKey);
   forgetCode();
 }
+
+export async function adminStatus(): Promise<boolean> {
+  if (preview || !supabase) return false;
+  const { data, error } = await supabase.rpc("admin_status");
+  if (error) return false;
+  return Boolean(data);
+}
+
+export async function loadAdminDashboard(): Promise<AdminDashboard> {
+  if (!supabase) throw new Error("Admin access is unavailable.");
+  const { data, error } = await supabase.rpc("admin_dashboard");
+  if (error)
+    throw new Error(
+      error.message.includes("ADMIN_REQUIRED")
+        ? "This account has not been granted wedding-admin access."
+        : "We could not load the admin dashboard.",
+    );
+  return data as AdminDashboard;
+}
+
 export const returnUrl = () =>
   new URL(import.meta.env.BASE_URL, window.location.origin).href;
