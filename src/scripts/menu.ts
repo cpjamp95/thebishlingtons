@@ -153,7 +153,7 @@ function selectGuest(id: string) {
   syncChoices(true);
 }
 
-async function hydrateMenu(name = displayName) {
+export async function hydrateMenu(name = displayName) {
   if (!root) return;
   displayName = name || displayName;
   const version = ++loadVersion;

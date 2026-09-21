@@ -1,3 +1,4 @@
+import { hydrateMenu } from "./menu";
 import {
   configured,
   preview,
@@ -120,6 +121,7 @@ function renderHome(data: GuestHome) {
   avatar.textContent = data.display_name.trim().slice(0, 1).toUpperCase();
   avatar.setAttribute("aria-label", "Your wedding invitation");
   get("#guest-home-title").focus({ preventScroll: true });
+  void hydrateMenu(data.display_name);
 }
 async function restore() {
   if (recovering) {
