@@ -1,0 +1,342 @@
+---
+import { wedding } from "../../data/wedding";
+
+const directionsUrl =
+  "https://www.google.com/maps/dir/?api=1&destination=The+Mitre%2C+Hampton+Court";
+
+const stays = [
+  {
+    title: "Stay at The Mitre",
+    subtitle: "At the venue",
+    description:
+      "The easiest option for a very short journey home after the celebrations.",
+    visual: "mitre",
+  },
+  {
+    title: "Boutique stay nearby",
+    subtitle: "Local option",
+    description:
+      "A characterful nearby hotel option. We’ll replace this with our final recommendation.",
+    visual: "boutique",
+  },
+  {
+    title: "Budget stay nearby",
+    subtitle: "Good-value option",
+    description:
+      "A practical nearby stay for guests who want something simple and convenient.",
+    visual: "budget",
+  },
+];
+
+const travelModes = [
+  {
+    icon: "car",
+    title: "By Car",
+    copy: "Hampton Court is straightforward to reach by road. Final parking guidance and recommended car parks will be added here.",
+  },
+  {
+    icon: "train",
+    title: "By Train",
+    copy: "Hampton Court station is close to the venue. We’ll add the most useful routes and last-train notes nearer the day.",
+  },
+  {
+    icon: "plane",
+    title: "By Plane",
+    copy: "For guests travelling from further afield, we’ll add the most convenient airport and onward-travel options here.",
+  },
+  {
+    icon: "parking",
+    title: "Parking",
+    copy: "We’ll confirm nearby parking, any venue restrictions and the easiest drop-off points before the wedding.",
+  },
+];
+
+const highlights = [
+  {
+    icon: "♜",
+    title: "Hampton Court Palace",
+    copy: "A historic neighbour to the venue and an easy addition if you’re making a weekend of it.",
+    visual: "palace",
+  },
+  {
+    icon: "≈",
+    title: "Riverside Walks",
+    copy: "Take a relaxed walk along the Thames and enjoy the riverside around Hampton Court.",
+    visual: "river",
+  },
+  {
+    icon: "☕",
+    title: "Places to Eat & Drink",
+    copy: "We’ll add a few of our favourite nearby cafés, pubs and brunch spots for the weekend.",
+    visual: "food",
+  },
+  {
+    icon: "⌂",
+    title: "Hampton Court Village",
+    copy: "Shops, cafés and local places to explore when you have some time before or after the wedding.",
+    visual: "village",
+  },
+];
+---
+
+<section
+  class="guest-story__section guest-travel"
+  id="travel"
+  aria-labelledby="travel-title"
+>
+  <div class="guest-travel__inner">
+    <header class="guest-travel__header">
+      <p class="guest-travel__eyebrow"><span></span> EXPLORE &amp; STAY <span></span></p>
+      <h2 id="travel-title">Travel &amp; Local Information</h2>
+      <p class="guest-travel__strap">Make the most of your visit</p>
+      <p class="guest-travel__intro">
+        Everything you need for getting to {wedding.venue.name}, finding
+        somewhere to stay and enjoying a little more of Hampton Court.
+      </p>
+      <p class="guest-travel__handwritten" aria-hidden="true">
+        See you<br />in Hampton Court ♡
+      </p>
+    </header>
+
+    <section class="travel-venue">
+      <div class="travel-venue__copy">
+        <p class="travel-section-label">
+          <span class="travel-section-label__icon" aria-hidden="true">⌂</span>
+          The venue
+        </p>
+        <h3>{wedding.venue.name}, {wedding.venue.location}</h3>
+        <p class="travel-venue__address">Hampton Court Road, East Molesey</p>
+        <p>
+          Our riverside wedding venue sits right beside Hampton Court Palace
+          and the Thames. This section will become the practical hub for
+          directions, arrivals and local information.
+        </p>
+        <a
+          class="travel-primary-button"
+          href={directionsUrl}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m22 2-7 20-4-9-9-4Z"></path>
+            <path d="M22 2 11 13"></path>
+          </svg>
+          Open in Google Maps
+        </a>
+      </div>
+
+      <div class="travel-map" aria-label="Illustrative map of Hampton Court">
+        <div class="travel-map__river" aria-hidden="true"></div>
+        <div class="travel-map__road travel-map__road--one" aria-hidden="true"></div>
+        <div class="travel-map__road travel-map__road--two" aria-hidden="true"></div>
+        <div class="travel-map__road travel-map__road--three" aria-hidden="true"></div>
+        <span class="travel-map__label travel-map__label--palace">
+          Hampton Court Palace
+        </span>
+        <span class="travel-map__label travel-map__label--station">
+          Hampton Court Station
+        </span>
+        <div class="travel-map__pin">
+          <span aria-hidden="true">●</span>
+          <strong>The Mitre</strong>
+          <small>Hampton Court</small>
+        </div>
+      </div>
+
+      <aside class="travel-nearby">
+        <p class="travel-nearby__title">Nearby landmarks</p>
+        <ul>
+          <li><span>♜</span><div><strong>Hampton Court Palace</strong><small>Next door</small></div></li>
+          <li><span>≈</span><div><strong>The River Thames</strong><small>Riverside</small></div></li>
+          <li><span>▣</span><div><strong>Hampton Court Station</strong><small>Nearby</small></div></li>
+          <li><span>Ⓟ</span><div><strong>Parking</strong><small>Details to follow</small></div></li>
+        </ul>
+      </aside>
+    </section>
+
+    <section class="travel-block travel-stays" aria-labelledby="stay-title">
+      <div class="travel-block__heading">
+        <h3 id="stay-title"><span aria-hidden="true">▤</span> Accommodation</h3>
+        <span></span>
+        <p>Swipe for options</p>
+      </div>
+      <p class="travel-block__intro">
+        A few suggested places to stay, from being right at the venue to more
+        budget-friendly options. We’ll replace the trial cards with our final
+        recommendations later.
+      </p>
+
+      <div class="travel-carousel-shell">
+        <button
+          type="button"
+          class="travel-carousel-arrow travel-carousel-arrow--prev"
+          data-stay-prev
+          aria-label="Previous accommodation option"
+        >‹</button>
+
+        <div class="travel-stay-carousel" data-stay-carousel>
+          {
+            stays.map((stay) => (
+              <article class="travel-stay-card">
+                <div class={"travel-stay-card__visual travel-stay-card__visual--" + stay.visual}>
+                  <span aria-hidden="true">⌂</span>
+                </div>
+                <div class="travel-stay-card__body">
+                  <h4>{stay.title}</h4>
+                  <p class="travel-stay-card__subtitle">{stay.subtitle}</p>
+                  <p>{stay.description}</p>
+                  <button type="button" disabled>Details coming soon</button>
+                </div>
+              </article>
+            ))
+          }
+        </div>
+
+        <button
+          type="button"
+          class="travel-carousel-arrow travel-carousel-arrow--next"
+          data-stay-next
+          aria-label="Next accommodation option"
+        >›</button>
+      </div>
+
+      <div class="travel-carousel-dots" data-stay-dots aria-label="Accommodation carousel position">
+        {stays.map((_, index) => (
+          <button
+            type="button"
+            class:list={{ "is-active": index === 0 }}
+            data-stay-dot
+            data-stay-index={index}
+            aria-label={"Show accommodation option " + (index + 1)}
+          ></button>
+        ))}
+      </div>
+    </section>
+
+    <section class="travel-block" aria-labelledby="getting-title">
+      <div class="travel-block__heading">
+        <h3 id="getting-title"><span aria-hidden="true">↗</span> Getting here</h3>
+        <span></span>
+        <p>Plan your journey</p>
+      </div>
+
+      <div class="travel-mode-grid">
+        {
+          travelModes.map((mode) => (
+            <article class="travel-mode-card">
+              <div class={"travel-mode-card__icon travel-mode-card__icon--" + mode.icon} aria-hidden="true">
+                {mode.icon === "car" && "🚗"}
+                {mode.icon === "train" && "🚆"}
+                {mode.icon === "plane" && "✈"}
+                {mode.icon === "parking" && "P"}
+              </div>
+              <h4>{mode.title}</h4>
+              <p>{mode.copy}</p>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="travel-block" aria-labelledby="local-title">
+      <div class="travel-block__heading">
+        <h3 id="local-title"><span aria-hidden="true">⌕</span> Local highlights</h3>
+        <span></span>
+        <p>Make a weekend of it</p>
+      </div>
+      <p class="travel-block__intro">
+        A few ideas for filling the time around the wedding. We’ll add our
+        actual recommendations and favourite places as the plans come together.
+      </p>
+
+      <div class="travel-highlight-grid">
+        {
+          highlights.map((item) => (
+            <article class="travel-highlight-card">
+              <div class={"travel-highlight-card__visual travel-highlight-card__visual--" + item.visual}>
+                <span aria-hidden="true">{item.icon}</span>
+              </div>
+              <div>
+                <h4>{item.title}</h4>
+                <p>{item.copy}</p>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <p class="guest-travel__footer-note" aria-hidden="true">
+      More adventures together ♡
+    </p>
+
+    <div class="guest-story__progress" aria-label="Page 3 of 4">
+      <span></span>
+      <span></span>
+      <span class="is-active"></span>
+      <span></span>
+    </div>
+  </div>
+</section>
+
+<script>
+  const stayCarousel = document.querySelector<HTMLElement>("[data-stay-carousel]");
+  const stayCards = stayCarousel
+    ? [...stayCarousel.querySelectorAll<HTMLElement>(".travel-stay-card")]
+    : [];
+  const stayDots = [
+    ...document.querySelectorAll<HTMLButtonElement>("[data-stay-dot]"),
+  ];
+
+  const centreStay = (index: number) => {
+    const card = stayCards[index];
+    if (!stayCarousel || !card) return;
+    const left =
+      card.offsetLeft - (stayCarousel.clientWidth - card.clientWidth) / 2;
+    stayCarousel.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
+  };
+
+  const currentStayIndex = () => {
+    if (!stayCarousel || !stayCards.length) return 0;
+    const centre = stayCarousel.scrollLeft + stayCarousel.clientWidth / 2;
+    let active = 0;
+    let nearest = Number.POSITIVE_INFINITY;
+    stayCards.forEach((card, index) => {
+      const distance = Math.abs(
+        card.offsetLeft + card.clientWidth / 2 - centre,
+      );
+      if (distance < nearest) {
+        nearest = distance;
+        active = index;
+      }
+    });
+    return active;
+  };
+
+  const updateStayDots = () => {
+    const active = currentStayIndex();
+    stayDots.forEach((dot, index) =>
+      dot.classList.toggle("is-active", index === active),
+    );
+  };
+
+  document.querySelector("[data-stay-prev]")?.addEventListener("click", () => {
+    centreStay(Math.max(0, currentStayIndex() - 1));
+  });
+
+  document.querySelector("[data-stay-next]")?.addEventListener("click", () => {
+    centreStay(Math.min(stayCards.length - 1, currentStayIndex() + 1));
+  });
+
+  stayDots.forEach((dot) => {
+    dot.addEventListener("click", () =>
+      centreStay(Number(dot.dataset.stayIndex || 0)),
+    );
+  });
+
+  let stayRaf = 0;
+  stayCarousel?.addEventListener("scroll", () => {
+    cancelAnimationFrame(stayRaf);
+    stayRaf = requestAnimationFrame(updateStayDots);
+  });
+</script>
