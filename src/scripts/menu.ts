@@ -22,6 +22,7 @@ const saveButton = root?.querySelector<HTMLButtonElement>("[data-menu-save]");
 const saveName = root?.querySelector<HTMLElement>("[data-menu-save-name]");
 const nextButton = root?.querySelector<HTMLButtonElement>("[data-menu-next]");
 const nextName = root?.querySelector<HTMLElement>("[data-menu-next-name]");
+const completeNote = root?.querySelector<HTMLElement>("[data-menu-complete]");
 
 const initials = (name: string) =>
   name
@@ -32,7 +33,11 @@ const initials = (name: string) =>
     .join("");
 
 const complete = (guest: DraftGuest) =>
+  guest.attendance_status === "attending" &&
   Boolean(guest.starter && guest.main && guest.dessert);
+
+const editable = (guest: DraftGuest) =>
+  guest.attendance_status === "attending";
 
 const activeGuest = () => guests.find((guest) => guest.id === activeGuestId);
 
@@ -70,7 +75,16 @@ function renderGuestList() {
 
       const state = document.createElement("span");
       state.className = "menu-guest-chip__state";
-      state.textContent = complete(guest) && !guest.dirty ? "✓" : "";
+      state.textContent =
+        guest.attendance_status === "declined"
+          ? "—"
+          : guest.attendance_status === null
+            ? "!"
+            : complete(guest) && !guest.dirty
+              ? "✓"
+              : "";
+      button.classList.toggle("is-declined", guest.attendance_status === "declined");
+      button.classList.toggle("needs-rsvp", guest.attendance_status === null);
       state.setAttribute("aria-hidden", "true");
 
       button.append(avatar, label, state);
@@ -90,6 +104,7 @@ function syncChoices(scroll = false) {
       const selected = guest[course] === button.dataset.menuOption;
       button.classList.toggle("is-selected", selected);
       button.setAttribute("aria-checked", String(selected));
+      button.disabled = !editable(guest);
     },
   );
 
@@ -97,6 +112,12 @@ function syncChoices(scroll = false) {
   if (saveButton) {
     saveButton.disabled = !complete(guest);
     saveButton.classList.toggle("is-ready", complete(guest));
+    saveButton.textContent =
+      guest.attendance_status === "declined"
+        ? guest.name + " is not attending"
+        : guest.attendance_status === null
+          ? "Complete " + guest.name + "’s RSVP first"
+          : "Save choices for " + guest.name + " →";
   }
 
   syncNextGuest();
@@ -132,13 +153,26 @@ function nextGuestCandidate() {
     ...guests.slice(current + 1),
     ...guests.slice(0, current),
   ];
-  return ordered.find((guest) => !complete(guest) || guest.dirty) ?? ordered[0];
+  return (
+    ordered.find(
+      (guest) =>
+        guest.attendance_status === "attending" &&
+        (!complete(guest) || guest.dirty),
+    ) ?? null
+  );
 }
 
 function syncNextGuest() {
   const next = nextGuestCandidate();
   if (!nextButton || !nextName) return;
   nextButton.hidden = !next;
+  const attending = guests.filter(
+    (guest) => guest.attendance_status === "attending",
+  );
+  const allSaved =
+    attending.length > 0 &&
+    attending.every((guest) => complete(guest) && !guest.dirty);
+  if (completeNote) completeNote.hidden = !allSaved;
   if (next) {
     nextName.textContent = next.name;
     nextButton.dataset.nextGuest = next.id;
@@ -179,7 +213,11 @@ export async function hydrateMenu(name = displayName) {
         displayName &&
         guest.name.trim().toLowerCase() === displayName.trim().toLowerCase(),
     );
-    activeGuestId = you?.id ?? guests[0].id;
+    activeGuestId =
+      (you && editable(you) ? you.id : undefined) ??
+      guests.find(editable)?.id ??
+      you?.id ??
+      guests[0].id;
     renderGuestList();
     syncChoices(true);
     if (courses) courses.hidden = false;
@@ -201,7 +239,7 @@ root?.querySelectorAll<HTMLButtonElement>("[data-menu-option]").forEach(
       const guest = activeGuest();
       const course = button.dataset.menuCourse as Course;
       const option = button.dataset.menuOption;
-      if (!guest || !course || !option) return;
+      if (!guest || !course || !option || !editable(guest)) return;
 
       guest[course] = option;
       guest.dirty = true;
@@ -315,6 +353,7 @@ saveButton?.addEventListener("click", async () => {
     setStatus("Choices saved for " + guest.name + ".", "success");
     renderGuestList();
     syncChoices();
+    window.dispatchEvent(new Event("guest-profile-refresh"));
   } catch (error) {
     setStatus(
       error instanceof Error ? error.message : "We could not save the menu.",
@@ -339,3 +378,5 @@ window.addEventListener("guest-home-rendered", (event) => {
 if (document.documentElement.dataset.guestView === "home") {
   void hydrateMenu();
 }
+
+window.addEventListener("guest-menu-refresh", () => void hydrateMenu(displayName));
