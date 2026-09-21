@@ -1,4 +1,5 @@
 import { hydrateMenu } from "./menu";
+import { hydrateRsvp } from "./rsvp";
 import { hydrateSocial } from "./social";
 import {
   configured,
@@ -123,6 +124,7 @@ function renderHome(data: GuestHome) {
     data.display_name.trim().slice(0, 1).toUpperCase();
   avatar.setAttribute("aria-label", "Open your wedding profile");
   get("#guest-home-title").focus({ preventScroll: true });
+  void hydrateRsvp();
   void hydrateMenu(data.display_name);
   void hydrateSocial();
 }
