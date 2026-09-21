@@ -402,6 +402,7 @@ export async function addGuestMessage(message: string): Promise<GuestMessage> {
       author_name: "Preview Guest",
       message: trimmed,
       created_at: new Date().toISOString(),
+      is_owner: true,
     };
     feed.messages.unshift(item);
     localStorage.setItem(previewSocialKey, JSON.stringify(feed));
@@ -415,22 +416,57 @@ export async function addGuestMessage(message: string): Promise<GuestMessage> {
   return data as GuestMessage;
 }
 
+async function prepareHoneymoonPhoto(file: File): Promise<Blob> {
+  if (!["image/jpeg", "image/png", "image/webp"].includes(file.type))
+    throw new Error("Please upload a JPG, PNG or WebP image.");
+  if (file.size > 12 * 1024 * 1024)
+    throw new Error("Please choose an image smaller than 12 MB.");
+
+  const bitmap = await createImageBitmap(file);
+  const maxSide = 1600;
+  const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+  canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+  const context = canvas.getContext("2d");
+  if (!context) {
+    bitmap.close();
+    throw new Error("We could not prepare that photo.");
+  }
+  context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+
+  const blob = await new Promise<Blob | null>((resolve) =>
+    canvas.toBlob(resolve, "image/jpeg", 0.84),
+  );
+  if (!blob) throw new Error("We could not prepare that photo.");
+  if (blob.size > 5 * 1024 * 1024)
+    throw new Error("That photo is still too large after optimisation.");
+  return blob;
+}
+
 export async function uploadHoneymoonPhoto(file: File): Promise<string> {
   if (preview) return "";
   if (!supabase) throw new Error("Photo upload is not available yet.");
-  if (file.size > 5 * 1024 * 1024) throw new Error("Please choose an image smaller than 5 MB.");
-  if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-    throw new Error("Please upload a JPG, PNG or WebP image.");
-  }
+  const prepared = await prepareHoneymoonPhoto(file);
   const { data: userData, error: userError } = await supabase.auth.getUser();
-  if (userError || !userData.user) throw new Error("Please sign in again before uploading.");
-  const extension = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
-  const path = userData.user.id + "/" + crypto.randomUUID() + "." + extension;
+  if (userError || !userData.user)
+    throw new Error("Please sign in again before uploading.");
+  const path = userData.user.id + "/" + crypto.randomUUID() + ".jpg";
   const { error } = await supabase.storage
     .from("honeymoon-suggestions")
-    .upload(path, file, { cacheControl: "3600", upsert: false });
+    .upload(path, prepared, {
+      cacheControl: "3600",
+      contentType: "image/jpeg",
+      upsert: false,
+    });
   if (error) throw new Error("We could not upload that photo. Please try again.");
   return path;
+}
+
+export async function deleteHoneymoonPhoto(path: string | null) {
+  if (!path || preview || !supabase) return;
+  await supabase.storage.from("honeymoon-suggestions").remove([path]);
 }
 
 export async function addHoneymoonSuggestion(
@@ -452,6 +488,7 @@ export async function addHoneymoonSuggestion(
       story: copy,
       photo_path: null,
       created_at: new Date().toISOString(),
+      is_owner: true,
     };
     feed.suggestions.unshift(item);
     localStorage.setItem(previewSocialKey, JSON.stringify(feed));
@@ -522,6 +559,83 @@ export async function loadProfileSummary(): Promise<ProfileSummary> {
   const { data, error } = await supabase.rpc("profile_summary");
   if (error) throw new Error("We could not load your profile. Please try again.");
   return data as ProfileSummary;
+}
+
+
+export async function updateGuestMessage(
+  id: string,
+  message: string,
+): Promise<GuestMessage> {
+  if (preview) {
+    const feed = await loadSocialFeed();
+    const item = feed.messages.find((entry) => entry.id === id);
+    if (!item) throw new Error("That message could not be found.");
+    item.message = message.trim();
+    localStorage.setItem(previewSocialKey, JSON.stringify(feed));
+    return item;
+  }
+  if (!supabase) throw new Error("Guest messages are not available yet.");
+  const { data, error } = await supabase.rpc("update_guest_message", {
+    target_message_id: id,
+    message_text: message.trim(),
+  });
+  if (error) throw new Error("We could not update your message.");
+  return data as GuestMessage;
+}
+
+export async function deleteGuestMessage(id: string) {
+  if (preview) {
+    const feed = await loadSocialFeed();
+    feed.messages = feed.messages.filter((item) => item.id !== id);
+    localStorage.setItem(previewSocialKey, JSON.stringify(feed));
+    return;
+  }
+  if (!supabase) return;
+  const { error } = await supabase.rpc("delete_guest_message", {
+    target_message_id: id,
+  });
+  if (error) throw new Error("We could not delete your message.");
+}
+
+export async function updateHoneymoonSuggestion(
+  id: string,
+  destination: string,
+  story: string,
+): Promise<HoneymoonSuggestion> {
+  if (preview) {
+    const feed = await loadSocialFeed();
+    const item = feed.suggestions.find((entry) => entry.id === id);
+    if (!item) throw new Error("That suggestion could not be found.");
+    item.destination = destination.trim();
+    item.story = story.trim();
+    localStorage.setItem(previewSocialKey, JSON.stringify(feed));
+    return item;
+  }
+  if (!supabase) throw new Error("Honeymoon suggestions are not available yet.");
+  const { data, error } = await supabase.rpc("update_honeymoon_suggestion", {
+    target_suggestion_id: id,
+    destination_text: destination.trim(),
+    story_text: story.trim(),
+  });
+  if (error) throw new Error("We could not update your suggestion.");
+  return data as HoneymoonSuggestion;
+}
+
+export async function deleteHoneymoonSuggestion(id: string) {
+  if (preview) {
+    const feed = await loadSocialFeed();
+    feed.suggestions = feed.suggestions.filter((item) => item.id !== id);
+    localStorage.setItem(previewSocialKey, JSON.stringify(feed));
+    return;
+  }
+  if (!supabase) return;
+  const { data, error } = await supabase.rpc("delete_honeymoon_suggestion", {
+    target_suggestion_id: id,
+  });
+  if (error) throw new Error("We could not delete your suggestion.");
+  await deleteHoneymoonPhoto(
+    (data as { photo_path?: string | null })?.photo_path ?? null,
+  );
 }
 
 export async function signOut() {
