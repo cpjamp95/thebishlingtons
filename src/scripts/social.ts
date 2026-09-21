@@ -1,6 +1,10 @@
 import {
   addGuestMessage,
   addHoneymoonSuggestion,
+  updateGuestMessage,
+  deleteGuestMessage,
+  updateHoneymoonSuggestion,
+  deleteHoneymoonSuggestion,
   honeymoonPhotoUrl,
   loadSocialFeed,
   uploadHoneymoonPhoto,
@@ -19,6 +23,8 @@ const suggestionDialog = document.querySelector<HTMLDialogElement>("[data-sugges
 const messageForm = document.querySelector<HTMLFormElement>("[data-message-form]");
 const suggestionForm = document.querySelector<HTMLFormElement>("[data-suggestion-form]");
 let loading = false;
+let editingMessageId = "";
+let editingSuggestionId = "";
 
 const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase() || "").join("");
 const dateLabel = (iso: string) => new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric" }).format(new Date(iso));
@@ -69,24 +75,58 @@ function renderMessages(messages: GuestMessage[]) {
     heart.className = "message-card__heart";
     heart.textContent = "♡";
     card.append(head, copy, heart);
+    if (item.is_owner) {
+      const actions = document.createElement("div");
+      actions.className = "social-owner-actions";
+      const edit = document.createElement("button");
+      edit.type = "button";
+      edit.textContent = "Edit";
+      edit.addEventListener("click", () => {
+        editingMessageId = item.id;
+        const textarea = messageForm?.querySelector<HTMLTextAreaElement>(
+          '[name="message"]',
+        );
+        if (textarea) textarea.value = item.message;
+        messageDialog?.showModal();
+      });
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.textContent = "Delete";
+      remove.addEventListener("click", async () => {
+        if (!confirm("Delete your message?")) return;
+        try {
+          await deleteGuestMessage(item.id);
+          setStatus("Your message was deleted.", "success");
+          window.dispatchEvent(new Event("guest-profile-refresh"));
+          await hydrateSocial();
+        } catch (error) {
+          setStatus(
+            error instanceof Error ? error.message : "Please try again.",
+            "error",
+          );
+        }
+      });
+      actions.append(edit, remove);
+      card.append(actions);
+    }
     return card;
   }));
   rebuildDots(messageCarousel, messageDots);
 }
 
-function renderSuggestions(items: HoneymoonSuggestion[]) {
+async function renderSuggestions(items: HoneymoonSuggestion[]) {
   if (!suggestionCarousel) return;
   if (!items.length) {
     suggestionCarousel.replaceChildren(emptyCard("Where should we go?", "Add a destination you loved and help us build our honeymoon wish-list."));
     rebuildDots(suggestionCarousel, suggestionDots);
     return;
   }
-  suggestionCarousel.replaceChildren(...items.map((item) => {
+  const cards = await Promise.all(items.map(async (item) => {
     const card = document.createElement("article");
     card.className = "suggestion-card";
     const visual = document.createElement("div");
     visual.className = "suggestion-card__visual";
-    const photo = honeymoonPhotoUrl(item.photo_path);
+    const photo = await honeymoonPhotoUrl(item.photo_path);
     if (photo) {
       const img = document.createElement("img");
       img.src = photo;
@@ -113,9 +153,46 @@ function renderSuggestions(items: HoneymoonSuggestion[]) {
     label.textContent = "By " + item.author_name;
     by.append(avatar, label);
     body.append(title, story, by);
+    if (item.is_owner) {
+      const actions = document.createElement("div");
+      actions.className = "social-owner-actions";
+      const edit = document.createElement("button");
+      edit.type = "button";
+      edit.textContent = "Edit";
+      edit.addEventListener("click", () => {
+        editingSuggestionId = item.id;
+        const destination =
+          suggestionForm?.querySelector<HTMLInputElement>('[name="destination"]');
+        const storyInput =
+          suggestionForm?.querySelector<HTMLTextAreaElement>('[name="story"]');
+        if (destination) destination.value = item.destination;
+        if (storyInput) storyInput.value = item.story;
+        suggestionDialog?.showModal();
+      });
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.textContent = "Delete";
+      remove.addEventListener("click", async () => {
+        if (!confirm("Delete your honeymoon suggestion?")) return;
+        try {
+          await deleteHoneymoonSuggestion(item.id);
+          setStatus("Your suggestion was deleted.", "success");
+          window.dispatchEvent(new Event("guest-profile-refresh"));
+          await hydrateSocial();
+        } catch (error) {
+          setStatus(
+            error instanceof Error ? error.message : "Please try again.",
+            "error",
+          );
+        }
+      });
+      actions.append(edit, remove);
+      body.append(actions);
+    }
     card.append(visual, body);
     return card;
   }));
+  suggestionCarousel.replaceChildren(...cards);
   rebuildDots(suggestionCarousel, suggestionDots);
 }
 
@@ -173,7 +250,7 @@ export async function hydrateSocial() {
   try {
     const feed = await loadSocialFeed();
     renderMessages(feed.messages);
-    renderSuggestions(feed.suggestions);
+    await renderSuggestions(feed.suggestions);
   } catch (error) {
     setStatus(error instanceof Error ? error.message : "We could not load this page.", "error");
   } finally {
@@ -181,9 +258,17 @@ export async function hydrateSocial() {
   }
 }
 
-document.querySelector("[data-open-message]")?.addEventListener("click", () => messageDialog?.showModal());
+document.querySelector("[data-open-message]")?.addEventListener("click", () => {
+  editingMessageId = "";
+  messageForm?.reset();
+  messageDialog?.showModal();
+});
 document.querySelector("[data-close-message]")?.addEventListener("click", () => messageDialog?.close());
-document.querySelector("[data-open-suggestion]")?.addEventListener("click", () => suggestionDialog?.showModal());
+document.querySelector("[data-open-suggestion]")?.addEventListener("click", () => {
+  editingSuggestionId = "";
+  suggestionForm?.reset();
+  suggestionDialog?.showModal();
+});
 document.querySelector("[data-close-suggestion]")?.addEventListener("click", () => suggestionDialog?.close());
 
 messageForm?.addEventListener("submit", async (event) => {
@@ -195,10 +280,14 @@ messageForm?.addEventListener("submit", async (event) => {
   button && (button.disabled = true);
   if (feedback) feedback.hidden = true;
   try {
-    await addGuestMessage(String(data.get("message") || ""));
+    const message = String(data.get("message") || "");
+    if (editingMessageId) await updateGuestMessage(editingMessageId, message);
+    else await addGuestMessage(message);
+    editingMessageId = "";
     messageForm.reset();
     messageDialog?.close();
-    setStatus("Your message has been added ♡", "success");
+    setStatus("Your message has been saved ♡", "success");
+    window.dispatchEvent(new Event("guest-profile-refresh"));
     await hydrateSocial();
   } catch (error) {
     if (feedback) { feedback.textContent = error instanceof Error ? error.message : "Please try again."; feedback.hidden = false; }
@@ -218,14 +307,22 @@ suggestionForm?.addEventListener("submit", async (event) => {
   if (feedback) feedback.hidden = true;
   try {
     let photoPath: string | null = null;
-    if (file instanceof File && file.size > 0) {
+    if (!editingSuggestionId && file instanceof File && file.size > 0) {
       if (feedback) { feedback.textContent = "Uploading your photo…"; feedback.hidden = false; }
       photoPath = await uploadHoneymoonPhoto(file);
     }
-    await addHoneymoonSuggestion(String(data.get("destination") || ""), String(data.get("story") || ""), photoPath);
+    const destination = String(data.get("destination") || "");
+    const story = String(data.get("story") || "");
+    if (editingSuggestionId) {
+      await updateHoneymoonSuggestion(editingSuggestionId, destination, story);
+    } else {
+      await addHoneymoonSuggestion(destination, story, photoPath);
+    }
+    editingSuggestionId = "";
     suggestionForm.reset();
     suggestionDialog?.close();
-    setStatus("Your honeymoon suggestion has been added ✈", "success");
+    setStatus("Your honeymoon suggestion has been saved ✈", "success");
+    window.dispatchEvent(new Event("guest-profile-refresh"));
     await hydrateSocial();
   } catch (error) {
     if (feedback) { feedback.textContent = error instanceof Error ? error.message : "Please try again."; feedback.hidden = false; }
