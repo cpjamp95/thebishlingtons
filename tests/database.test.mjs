@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { PGlite } from "@electric-sql/pglite";
 
 test("invitation lookup and membership enforce household isolation in PostgreSQL", async () => {
@@ -13,14 +13,14 @@ test("invitation lookup and membership enforce household isolation in PostgreSQL
       grant usage on schema auth to anon, authenticated;
       grant execute on function auth.uid() to anon, authenticated;`);
     await db.exec(
-      await readFile(
-        new URL(
-          "../supabase/migrations/20260921091936_guest_onboarding.sql",
-          import.meta.url,
-        ),
-        "utf8",
-      ),
+      "alter default privileges in schema public grant execute on functions to anon, authenticated;",
     );
+    const migrations = new URL("../supabase/migrations/", import.meta.url);
+    for (const name of (await readdir(migrations))
+      .filter((name) => name.endsWith(".sql"))
+      .sort()) {
+      await db.exec(await readFile(new URL(name, migrations), "utf8"));
+    }
     const a = "11111111-1111-4111-8111-111111111111";
     const b = "22222222-2222-4222-8222-222222222222";
     const user = "33333333-3333-4333-8333-333333333333";

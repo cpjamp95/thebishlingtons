@@ -27,7 +27,7 @@ The `The Bishlingtons` project (`lntrxxppwteatcwkimgj`) is provisioned in London
 
 ## Backend setup reference
 
-1. Use a Supabase project for this wedding. Apply `supabase/migrations/20260921091936_guest_onboarding.sql` once in the SQL editor (or via the Supabase CLI migration workflow).
+1. Use a Supabase project for this wedding. Apply both SQL files in `supabase/migrations/` in timestamp order once in the SQL editor (or via the Supabase CLI migration workflow).
 2. Enable email/password authentication and email confirmation. Set a minimum password length of 12. Configure outgoing email before inviting real guests.
 3. Set the Site URL to `https://thebishlingtons.com/`. Add exact redirect URLs for that address and `http://127.0.0.1:4321/` for local testing. Add the `www` address only if it is used. No wildcard redirects are needed.
 4. Copy `.env.example` to `.env` and fill `PUBLIC_SUPABASE_URL` and `PUBLIC_SUPABASE_PUBLISHABLE_KEY` with the project URL and publishable (or legacy anon) key. Keep `PUBLIC_ONBOARDING_PREVIEW=false`. Never use the service-role/secret key in client config.
