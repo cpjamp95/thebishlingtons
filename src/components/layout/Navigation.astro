@@ -1,17 +1,197 @@
 ---
 const links = [
-  { href: "/", label: "Home" },
-  { href: "/details", label: "Details" },
-  { href: "/timeline", label: "Timeline" },
-  { href: "/travel", label: "Travel" },
-  { href: "/faq", label: "FAQ" },
+  { href: "#welcome", label: "Welcome", eyebrow: "01" },
+  { href: "#menu", label: "Menu", eyebrow: "02" },
+  { href: "#travel", label: "Travel & Local", eyebrow: "03" },
+  { href: "#share", label: "Share the Love", eyebrow: "04" },
 ];
 ---
 
-<nav class="site-header__nav" aria-label="Main navigation">
-  {
-    links.map((link) => (
-      <a href={link.href}>{link.label}</a>
-    ))
+<div
+  class="guest-nav"
+  id="guest-navigation"
+  data-guest-nav
+  aria-hidden="true"
+>
+  <button
+    class="guest-nav__backdrop"
+    type="button"
+    data-nav-close
+    tabindex="-1"
+    aria-label="Close navigation menu"
+  ></button>
+
+  <nav class="guest-nav__panel" aria-label="Guest site navigation">
+    <div class="guest-nav__top">
+      <img src="/images/brand/logo.png" alt="The Bishlingtons" />
+      <button
+        type="button"
+        class="guest-nav__close"
+        data-nav-close
+        aria-label="Close navigation menu"
+      >
+        ×
+      </button>
+    </div>
+
+    <p class="guest-nav__eyebrow">Your wedding guide</p>
+
+    <div class="guest-nav__links">
+      {
+        links.map((link) => (
+          <a href={link.href} data-nav-link>
+            <span>{link.eyebrow}</span>
+            <strong>{link.label}</strong>
+            <i aria-hidden="true">→</i>
+          </a>
+        ))
+      }
+    </div>
+
+    <div class="guest-nav__footer">
+      <span aria-hidden="true"></span>
+      <p>25 June 2027 · The Mitre, Hampton Court</p>
+      <span aria-hidden="true"></span>
+    </div>
+  </nav>
+</div>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>("[data-nav-toggle]");
+  const nav = document.querySelector<HTMLElement>("[data-guest-nav]");
+  const panel = nav?.querySelector<HTMLElement>(".guest-nav__panel");
+  const links = [
+    ...document.querySelectorAll<HTMLAnchorElement>("[data-nav-link]"),
+  ];
+  const closers = [
+    ...document.querySelectorAll<HTMLButtonElement>("[data-nav-close]"),
+  ];
+
+  let lastFocused: HTMLElement | null = null;
+
+  const setOpen = (open: boolean) => {
+    if (!toggle || !nav) return;
+
+    toggle.setAttribute("aria-expanded", String(open));
+    toggle.setAttribute(
+      "aria-label",
+      open ? "Close navigation menu" : "Open navigation menu",
+    );
+    nav.setAttribute("aria-hidden", String(!open));
+    nav.classList.toggle("is-open", open);
+    document.documentElement.classList.toggle("nav-open", open);
+
+    if (open) {
+      lastFocused = document.activeElement as HTMLElement;
+      window.requestAnimationFrame(() =>
+        panel?.querySelector<HTMLAnchorElement>("a")?.focus(),
+      );
+    } else {
+      lastFocused?.focus({ preventScroll: true });
+    }
+  };
+
+  toggle?.addEventListener("click", () => {
+    if (document.documentElement.dataset.guestView !== "home") return;
+    setOpen(!nav?.classList.contains("is-open"));
+  });
+
+  closers.forEach((button) =>
+    button.addEventListener("click", () => setOpen(false)),
+  );
+
+  links.forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      const target = document.querySelector<HTMLElement>(
+        link.getAttribute("href") || "",
+      );
+      setOpen(false);
+      window.requestAnimationFrame(() => {
+        target?.scrollIntoView({
+          behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
+            .matches
+            ? "auto"
+            : "smooth",
+          block: "start",
+        });
+      });
+    });
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && nav?.classList.contains("is-open")) {
+      setOpen(false);
+    }
+
+    if (
+      event.key === "Tab" &&
+      nav?.classList.contains("is-open") &&
+      panel
+    ) {
+      const focusable = [
+        ...panel.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled])',
+        ),
+      ];
+      if (!focusable.length) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+  });
+
+  const sections = ["welcome", "menu", "travel", "share"]
+    .map((id) => document.getElementById(id))
+    .filter((section): section is HTMLElement => Boolean(section));
+
+  const markActive = (id: string) => {
+    links.forEach((link) => {
+      const active = link.getAttribute("href") === "#" + id;
+      link.classList.toggle("is-active", active);
+      if (active) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
+    });
+  };
+
+  if ("IntersectionObserver" in window) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible?.target instanceof HTMLElement) {
+          markActive(visible.target.id);
+        }
+      },
+      {
+        rootMargin: "-20% 0px -55% 0px",
+        threshold: [0.05, 0.2, 0.5],
+      },
+    );
+
+    sections.forEach((section) => observer.observe(section));
   }
-</nav>
+
+  const closeOutsideHome = new MutationObserver(() => {
+    if (
+      document.documentElement.dataset.guestView !== "home" &&
+      nav?.classList.contains("is-open")
+    ) {
+      setOpen(false);
+    }
+  });
+
+  closeOutsideHome.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-guest-view"],
+  });
+</script>

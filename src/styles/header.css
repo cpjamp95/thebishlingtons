@@ -177,3 +177,237 @@ html[data-guest-view="home"] .hamburger-button span {
     width: min(158px, 40vw);
   }
 }
+
+
+/* Quick navigation drawer */
+.guest-nav {
+  position: fixed;
+  inset: 0;
+  z-index: 160;
+
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.guest-nav__backdrop {
+  position: absolute;
+  inset: 0;
+
+  border: 0;
+  background: rgba(43, 33, 24, 0.42);
+  opacity: 0;
+
+  transition: opacity 220ms ease;
+}
+
+.guest-nav__panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: min(88vw, 390px);
+  height: 100%;
+  padding: 24px 24px 28px;
+
+  display: flex;
+  flex-direction: column;
+
+  border-right: 1px solid rgba(175, 118, 85, 0.28);
+
+  background:
+    radial-gradient(circle at 10% 8%, rgba(175, 118, 85, 0.08), transparent 15rem),
+    linear-gradient(180deg, #fffaf3 0%, #f7f1e8 100%);
+
+  box-shadow: 18px 0 48px rgba(43, 33, 24, 0.18);
+
+  transform: translateX(-103%);
+  transition: transform 260ms ease;
+}
+
+.guest-nav.is-open {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.guest-nav.is-open .guest-nav__backdrop {
+  opacity: 1;
+}
+
+.guest-nav.is-open .guest-nav__panel {
+  transform: translateX(0);
+}
+
+.guest-nav__top {
+  min-height: 58px;
+
+  display: grid;
+  grid-template-columns: 1fr 44px;
+  align-items: center;
+  gap: 12px;
+
+  border-bottom: 1px solid rgba(175, 118, 85, 0.18);
+}
+
+.guest-nav__top img {
+  width: min(176px, 48vw);
+  height: auto;
+}
+
+.guest-nav__close {
+  width: 40px;
+  height: 40px;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid rgba(175, 118, 85, 0.24);
+  border-radius: 50%;
+
+  background: rgba(255, 250, 243, 0.72);
+  color: var(--color-accent-hover);
+
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+.guest-nav__eyebrow {
+  margin-top: 38px;
+
+  color: var(--color-accent-hover);
+
+  font-size: 0.68rem;
+  font-weight: 700;
+
+  letter-spacing: 0.23em;
+  text-transform: uppercase;
+}
+
+.guest-nav__links {
+  margin-top: 14px;
+}
+
+.guest-nav__links a {
+  min-height: 74px;
+  padding: 12px 3px;
+
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 26px;
+  align-items: center;
+  gap: 10px;
+
+  border-bottom: 1px solid rgba(175, 118, 85, 0.17);
+
+  color: var(--color-text);
+}
+
+.guest-nav__links a > span {
+  color: var(--color-accent);
+
+  font-size: 0.62rem;
+  font-weight: 700;
+
+  letter-spacing: 0.1em;
+}
+
+.guest-nav__links a strong {
+  font: 500 clamp(1.65rem, 6vw, 2rem) / 1 var(--font-display);
+}
+
+.guest-nav__links a i {
+  color: var(--color-accent);
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-style: normal;
+
+  transition: transform var(--transition-fast);
+}
+
+.guest-nav__links a:hover i,
+.guest-nav__links a.is-active i {
+  transform: translateX(3px);
+}
+
+.guest-nav__links a.is-active strong {
+  color: var(--color-accent-hover);
+}
+
+.guest-nav__links a.is-active > span {
+  position: relative;
+}
+
+.guest-nav__links a.is-active > span::after {
+  content: "";
+
+  position: absolute;
+  left: 0;
+  bottom: -7px;
+
+  width: 18px;
+
+  border-top: 2px solid var(--color-accent);
+}
+
+.guest-nav__footer {
+  margin-top: auto;
+  padding-top: 24px;
+
+  display: grid;
+  grid-template-columns: minmax(18px, 1fr) auto minmax(18px, 1fr);
+  align-items: center;
+  gap: 10px;
+
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.guest-nav__footer span {
+  border-top: 1px solid var(--color-divider);
+}
+
+.guest-nav__footer p {
+  max-width: 22ch;
+
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+html.nav-open {
+  overflow: hidden;
+}
+
+html[data-guest-view="home"] .hamburger-button {
+  position: relative;
+  z-index: 170;
+}
+
+html[data-guest-view="home"] .hamburger-button[aria-expanded="true"] span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+html[data-guest-view="home"] .hamburger-button[aria-expanded="true"] span:nth-child(2) {
+  opacity: 0;
+}
+
+html[data-guest-view="home"] .hamburger-button[aria-expanded="true"] span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+html:not([data-guest-view="home"]) .guest-nav {
+  display: none;
+}
+
+@media (min-width: 720px) {
+  .guest-nav__panel {
+    width: min(420px, 46vw);
+    padding: 28px 32px 32px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guest-nav__backdrop,
+  .guest-nav__panel {
+    transition: none;
+  }
+}
