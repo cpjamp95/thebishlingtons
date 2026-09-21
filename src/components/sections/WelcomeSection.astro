@@ -91,6 +91,20 @@ const googleMapsDirections =
           </div>
         </article>
 
+        <section class="guest-rsvp" id="rsvp-details" data-rsvp-app aria-labelledby="rsvp-title">
+          <div class="guest-rsvp__heading">
+            <p class="guest-rsvp__eyebrow">YOUR RSVP</p>
+            <h3 id="rsvp-title">Tell us who’s coming</h3>
+            <p>
+              Please reply for each person on your invitation. If you’re joining us,
+              add any dietary requirements and food allergies so we can look after you properly.
+            </p>
+          </div>
+          <p class="rsvp-loading" data-rsvp-loading>Loading your RSVP…</p>
+          <div class="rsvp-guests" data-rsvp-guests></div>
+          <p class="rsvp-status" data-rsvp-status role="status" aria-live="polite" hidden></p>
+        </section>
+
         <div class="guest-welcome__details-grid">
           <article class="guest-detail-card guest-detail-card--timing">
             <div class="guest-detail-card__icon" aria-hidden="true">
@@ -206,4 +220,8 @@ const googleMapsDirections =
     update();
     window.setInterval(update, 1000);
   }
+</script>
+
+<script>
+  import "../../scripts/rsvp";
 </script>
