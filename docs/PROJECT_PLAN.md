@@ -1,3 +1,13 @@
+# Current checkpoint — 21 September 2026
+
+The opening invitation design is implemented. Milestone 2.5 (guest onboarding) now has a Supabase integration, invitation/household lookup, email-confirmed accounts, sign-in/recovery, persistent personalised homepage and sign-out. The database migration and setup/testing instructions are in [ONBOARDING.md](ONBOARDING.md).
+
+**Release status:** implementation on `codex/guest-onboarding`; Supabase project and migration created; Auth redirect/email configuration and a real email/account round-trip must be completed before production use. The explicit local preview is fictional and is not authentication. RSVP submission is the next feature; no attendance is recorded by onboarding.
+
+Next: finish the hosted onboarding acceptance test; implement per-guest RSVP, then wedding information sections and mobile navigation. Social features and admin reporting follow. The original scope below is retained as historical planning, not a completion checklist.
+
+---
+
 \# 💍 The Bishlingtons Wedding Platform
 
 

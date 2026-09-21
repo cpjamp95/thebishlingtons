@@ -1,0 +1,39 @@
+---
+import { wedding } from "../../data/wedding";
+---
+
+<section
+  class="guest-home"
+  data-guest-home
+  hidden
+  aria-labelledby="guest-home-title"
+>
+  <p class="guest-home__eyebrow">CAMERON &amp; ALEX · {wedding.date.display}</p>
+  <h1 id="guest-home-title" tabindex="-1">
+    Welcome, <span data-guest-name></span>
+  </h1>
+  <p class="guest-home__intro">
+    Your invitation, all in one place. We’re so glad you’re part of our day.
+  </p>
+  <p class="onboarding__preview" data-home-preview hidden>
+    Local preview · fictional guests · saved only in this browser.
+  </p>
+  <div class="guest-home__invitation">
+    <p class="guest-home__eyebrow" data-home-type></p>
+    <h2 data-home-household></h2>
+    <ul class="onboarding__guests" data-home-guests></ul>
+    <p>
+      {wedding.venue.name}, {wedding.venue.location}<br />{wedding.date.display}
+    </p>
+  </div>
+  <div class="guest-home__next">
+    <h2>You’re all set</h2>
+    <p>
+      Your account is linked to your invitation. RSVP, meal choices and more
+      wedding details will follow here.
+    </p>
+    <p class="guest-help">Your attendance has not been recorded yet.</p>
+  </div>
+  <p class="guest-feedback" data-home-feedback role="status" hidden></p>
+  <button type="button" class="guest-link" data-signout>Sign out</button>
+</section>
