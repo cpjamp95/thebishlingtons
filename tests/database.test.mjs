@@ -9,7 +9,7 @@ test("invitation lookup and membership enforce household isolation in PostgreSQL
     await db.exec(`create role anon; create role authenticated;
       create schema auth;
       create table auth.users(id uuid primary key, email_confirmed_at timestamptz, raw_user_meta_data jsonb);
-      create function auth.uid() returns uuid language sql as $ select nullif(current_setting('test.uid', true), '')::uuid $;
+      create function auth.uid() returns uuid language sql as 'select nullif(current_setting(''test.uid'', true), '''')::uuid';
       create schema storage;
       create table storage.buckets(
         id text primary key,
@@ -20,7 +20,7 @@ test("invitation lookup and membership enforce household isolation in PostgreSQL
       );
       create table storage.objects(name text, bucket_id text);
       create function storage.foldername(value text) returns text[]
-      language sql immutable as $ select string_to_array(value, '/') $;
+      language sql immutable as 'select string_to_array(value, ''/'')';
       grant usage on schema auth, storage to anon, authenticated;
       grant execute on function auth.uid() to anon, authenticated;`);
     await db.exec(
