@@ -36,3 +36,5 @@
     text-align: center;
   }
 }
+
+html[data-guest-view="home"] .site-footer { display: none; }
