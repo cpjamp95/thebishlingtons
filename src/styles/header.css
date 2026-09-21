@@ -129,3 +129,51 @@
   border-color: var(--color-accent);
   transform: translateY(-1px);
 }
+
+
+.header-wordmark {
+  display: none;
+  justify-self: center;
+  width: min(188px, 42vw);
+  padding-top: 4px;
+}
+
+.header-wordmark img {
+  width: 100%;
+  height: auto;
+}
+
+html[data-guest-view="home"] .site-header {
+  background: rgba(247, 241, 232, 0.94);
+  border-bottom: 1px solid rgba(175, 118, 85, 0.15);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+html[data-guest-view="home"] .header-countdown {
+  display: none;
+}
+
+html[data-guest-view="home"] .header-wordmark {
+  display: block;
+}
+
+html[data-guest-view="home"] .header-avatar {
+  background: var(--color-surface);
+  border-color: rgba(175, 118, 85, 0.35);
+  color: var(--color-accent-hover);
+}
+
+html[data-guest-view="home"] .hamburger-button span {
+  background: var(--color-accent-hover);
+}
+
+@media (max-width: 480px) {
+  html[data-guest-view="home"] .site-header__inner {
+    width: min(100% - 1.25rem, var(--container-width));
+  }
+
+  .header-wordmark {
+    width: min(158px, 40vw);
+  }
+}
