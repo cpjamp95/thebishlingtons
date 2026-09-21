@@ -33,6 +33,11 @@ const types = {
   evening: "Join us for the evening celebration",
   weddingParty: "You’re part of our wedding party",
 };
+const homeTypes = {
+  day: "Day guest",
+  evening: "Evening guest",
+  weddingParty: "Wedding party",
+};
 
 function message(text: string, success = false) {
   feedback.textContent = text;
@@ -40,6 +45,7 @@ function message(text: string, success = false) {
   feedback.dataset.tone = success ? "success" : "error";
 }
 function showPanel(name: string, focus = true) {
+  delete document.documentElement.dataset.guestView;
   window.scrollTo({ top: 0, behavior: "instant" });
   if (preview && ["signin", "reset"].includes(name)) name = "code";
   hero.hidden = false;
@@ -71,6 +77,7 @@ function showPanel(name: string, focus = true) {
     });
 }
 function showInvitation() {
+  delete document.documentElement.dataset.guestView;
   hero.hidden = false;
   home.hidden = true;
   card.classList.remove("is-flipped");
@@ -98,13 +105,14 @@ function guests(selector: string, data: Household) {
   );
 }
 function renderHome(data: GuestHome) {
+  document.documentElement.dataset.guestView = "home";
   window.scrollTo({ top: 0, behavior: "instant" });
   currentHome = data;
   hero.hidden = true;
   home.hidden = false;
   get("[data-guest-name]").textContent = data.display_name;
   get("[data-home-household]").textContent = data.label;
-  get("[data-home-type]").textContent = types[data.guest_type];
+  get("[data-home-type]").textContent = homeTypes[data.guest_type];
   guests("[data-home-guests]", data);
   get("[data-home-preview]").hidden = !preview;
   get("[data-home-feedback]").hidden = true;
