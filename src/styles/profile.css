@@ -467,3 +467,6 @@ html:not([data-guest-view="home"]) .guest-profile {
     transition: none;
   }
 }
+
+.profile-meal-card__status.is-declined { background: rgba(122,106,90,.1); color: var(--color-muted); }
+.profile-meal-card dd.has-allergy { color: var(--color-error); font-weight: 650; }
