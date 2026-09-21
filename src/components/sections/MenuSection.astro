@@ -1,0 +1,148 @@
+---
+import { menuCourses } from "../../data/menu";
+---
+
+<section
+  class="guest-story__section guest-menu"
+  id="menu"
+  aria-labelledby="menu-title"
+>
+  <div class="guest-menu__inner">
+    <header class="guest-menu__header">
+      <p class="guest-menu__eyebrow"><span></span> FOOD &amp; DRINK <span></span></p>
+      <h2 id="menu-title">A Taste to Remember</h2>
+      <p class="guest-menu__strap">Great food brings people together</p>
+      <p class="guest-menu__intro">
+        We’ve created a trial menu for our wedding breakfast at The Mitre.
+        Choose one option from each course for every guest in your party.
+      </p>
+      <p class="guest-menu__handwritten" aria-hidden="true">
+        Good food<br />Good company<br />A great day ♡
+      </p>
+    </header>
+
+    <div class="guest-menu__app" data-menu-app>
+      <div class="menu-guest-panel">
+        <div>
+          <p class="menu-guest-panel__title">Who are we choosing for?</p>
+          <p class="menu-guest-panel__hint">
+            Each person on your invitation has their own saved menu.
+          </p>
+        </div>
+        <div
+          class="menu-guest-list"
+          data-menu-guests
+          aria-label="Guests on this invitation"
+        ></div>
+      </div>
+
+      <p class="menu-loading" data-menu-loading>Loading your guests…</p>
+      <p class="menu-status" data-menu-status role="status" aria-live="polite" hidden></p>
+
+      <div data-menu-courses hidden>
+        {
+          menuCourses.map((course) => (
+            <section class="menu-course" data-menu-course={course.id}>
+              <div class="menu-course__heading">
+                <h3>{course.title}</h3>
+                <span></span>
+                <p>{course.prompt}</p>
+              </div>
+
+              <div class="menu-carousel-shell">
+                <button
+                  type="button"
+                  class="menu-carousel-arrow menu-carousel-arrow--prev"
+                  data-carousel-prev={course.id}
+                  aria-label={`Previous ${course.title.toLowerCase()} option`}
+                >
+                  ‹
+                </button>
+
+                <div
+                  class="menu-carousel"
+                  data-carousel={course.id}
+                  role="radiogroup"
+                  aria-label={`${course.title}: choose one`}
+                >
+                  {course.options.map((option) => (
+                    <button
+                      type="button"
+                      class={`menu-choice menu-choice--${option.visual}`}
+                      data-menu-option={option.id}
+                      data-menu-course={course.id}
+                      role="radio"
+                      aria-checked="false"
+                    >
+                      <div class="menu-choice__visual" aria-hidden="true">
+                        <span>{option.emoji}</span>
+                      </div>
+                      <span class="menu-choice__check" aria-hidden="true">✓</span>
+                      <div class="menu-choice__body">
+                        <strong>{option.name}</strong>
+                        <span class="menu-choice__description">
+                          {option.description}
+                        </span>
+                        <span class="menu-choice__tag">{option.tag}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  class="menu-carousel-arrow menu-carousel-arrow--next"
+                  data-carousel-next={course.id}
+                  aria-label={`Next ${course.title.toLowerCase()} option`}
+                >
+                  ›
+                </button>
+              </div>
+
+              <div
+                class="menu-carousel-dots"
+                data-carousel-dots={course.id}
+                aria-label={`${course.title} carousel position`}
+              >
+                {course.options.map((option, index) => (
+                  <button
+                    type="button"
+                    class:list={{ "is-active": index === 0 }}
+                    data-carousel-dot={course.id}
+                    data-carousel-index={index}
+                    aria-label={`Show ${option.name}`}
+                  ></button>
+                ))}
+              </div>
+            </section>
+          ))
+        }
+
+        <div class="menu-submit">
+          <button type="button" class="menu-submit__button" data-menu-save disabled>
+            Save choices for <span data-menu-save-name>this guest</span>
+            <span aria-hidden="true">→</span>
+          </button>
+          <button type="button" class="menu-submit__next" data-menu-next hidden>
+            Next guest: <span data-menu-next-name></span> →
+          </button>
+          <p>
+            These are trial dishes for now. Choices can be changed again while
+            we finalise the wedding menu.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="guest-story__progress" aria-label="Page 2 of 4">
+      <span></span>
+      <span class="is-active"></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
+</section>
+
+<script>
+  import "../../scripts/menu";
+</script>

@@ -7,6 +7,15 @@ export type Household = {
   guests: { name: string }[];
 };
 export type GuestHome = Household & { display_name: string };
+export type MealGuest = {
+  id: string;
+  name: string;
+  starter: string | null;
+  main: string | null;
+  dessert: string | null;
+  updated_at: string | null;
+};
+export type MenuChoices = { guests: MealGuest[] };
 const url = import.meta.env.PUBLIC_SUPABASE_URL?.trim() || weddingBackend.url;
 const key =
   import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() ||
@@ -26,7 +35,7 @@ export const supabase =
     : null;
 export const configured = preview || Boolean(supabase);
 const pendingKey = "bishlingtons.pending-invitation";
-const previewKey = "bishlingtons.preview-home";
+const previewKey = "bishlingtons.preview-home";\nconst previewMenuKey = "bishlingtons.preview-menu";
 export const normaliseCode = (value: string) =>
   value.replace(/[\s-]/g, "").toUpperCase();
 export function rememberCode(code: string) {
@@ -122,6 +131,84 @@ export function savePreview(household: Household, name: string) {
   );
   forgetCode();
 }
+export async function loadMenuChoices(): Promise<MenuChoices> {
+  if (preview) {
+    const home = await loadHome();
+    if (!home) return { guests: [] };
+    let saved: Record<
+      string,
+      Pick<MealGuest, "starter" | "main" | "dessert" | "updated_at">
+    > = {};
+    try {
+      saved = JSON.parse(localStorage.getItem(previewMenuKey) || "{}");
+    } catch {
+      localStorage.removeItem(previewMenuKey);
+    }
+    return {
+      guests: home.guests.map((guest, index) => {
+        const id = "preview-" + index;
+        return {
+          id,
+          name: guest.name,
+          starter: saved[id]?.starter ?? null,
+          main: saved[id]?.main ?? null,
+          dessert: saved[id]?.dessert ?? null,
+          updated_at: saved[id]?.updated_at ?? null,
+        };
+      }),
+    };
+  }
+  if (!supabase) return { guests: [] };
+  const { data, error } = await supabase.rpc("menu_choices");
+  if (error)
+    throw new Error("We could not load your menu choices. Please try again.");
+  return (data as MenuChoices) ?? { guests: [] };
+}
+
+export async function saveMealChoices(
+  guestId: string,
+  choices: { starter: string; main: string; dessert: string },
+): Promise<MealGuest> {
+  if (preview) {
+    const menu = await loadMenuChoices();
+    const guest = menu.guests.find((item) => item.id === guestId);
+    if (!guest) throw new Error("That guest could not be found.");
+    const updated: MealGuest = {
+      ...guest,
+      ...choices,
+      updated_at: new Date().toISOString(),
+    };
+    let saved: Record<string, unknown> = {};
+    try {
+      saved = JSON.parse(localStorage.getItem(previewMenuKey) || "{}");
+    } catch {
+      saved = {};
+    }
+    saved[guestId] = {
+      starter: updated.starter,
+      main: updated.main,
+      dessert: updated.dessert,
+      updated_at: updated.updated_at,
+    };
+    localStorage.setItem(previewMenuKey, JSON.stringify(saved));
+    return updated;
+  }
+  if (!supabase) throw new Error("Menu choices are not available yet.");
+  const { data, error } = await supabase.rpc("save_menu_choices", {
+    target_guest_id: guestId,
+    starter_choice: choices.starter,
+    main_choice: choices.main,
+    dessert_choice: choices.dessert,
+  });
+  if (error)
+    throw new Error(
+      error.message.includes("GUEST_ACCESS_DENIED")
+        ? "That guest is not part of this invitation."
+        : "We could not save those choices. Please try again.",
+    );
+  return data as MealGuest;
+}
+
 export async function signOut() {
   if (supabase) {
     const { error } = await supabase.auth.signOut();
