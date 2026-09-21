@@ -475,22 +475,44 @@ export async function loadProfileSummary(): Promise<ProfileSummary> {
       loadSocialFeed(),
     ]);
     if (!home) throw new Error("We could not load your profile.");
-    const guests: ProfileGuest[] = menu.guests.map((guest) => ({
-      id: guest.id,
-      name: guest.name,
-      starter: guest.starter,
-      main: guest.main,
-      dessert: guest.dessert,
-      menu_complete: Boolean(guest.starter && guest.main && guest.dessert),
-    }));
+    const rsvp = await loadRsvpDetails();
+    const guests: ProfileGuest[] = menu.guests.map((guest) => {
+      const response = rsvp.guests.find((item) => item.id === guest.id);
+      return {
+        id: guest.id,
+        name: guest.name,
+        attendance_status: response?.attendance_status ?? null,
+        dietary_requirements: response?.dietary_requirements ?? null,
+        allergies: response?.allergies ?? null,
+        starter: guest.starter,
+        main: guest.main,
+        dessert: guest.dessert,
+        menu_complete:
+          response?.attendance_status === "attending" &&
+          Boolean(guest.starter && guest.main && guest.dessert),
+      };
+    });
     return {
       display_name: home.display_name,
       household_label: home.label,
       guest_type: home.guest_type,
       guests,
       tasks: {
-        meals_complete: guests.every((guest) => guest.menu_complete),
-        meal_guests_remaining: guests.filter((guest) => !guest.menu_complete).length,
+        rsvp_complete: guests.every(
+          (guest) => guest.attendance_status !== null,
+        ),
+        rsvp_guests_remaining: guests.filter(
+          (guest) => guest.attendance_status === null,
+        ).length,
+        meals_complete:
+          guests.every((guest) => guest.attendance_status !== null) &&
+          guests
+            .filter((guest) => guest.attendance_status === "attending")
+            .every((guest) => guest.menu_complete),
+        meal_guests_remaining: guests.filter(
+          (guest) =>
+            guest.attendance_status === "attending" && !guest.menu_complete,
+        ).length,
         message_complete: social.messages.length > 0,
         suggestion_complete: social.suggestions.length > 0,
       },
