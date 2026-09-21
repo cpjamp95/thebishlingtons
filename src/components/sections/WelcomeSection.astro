@@ -1,39 +1,211 @@
 ---
 import { wedding } from "../../data/wedding";
+
+const googleMapsDirections =
+  "https://www.google.com/maps/dir/?api=1&destination=The+Mitre%2C+Hampton+Court";
 ---
 
-<section
-  class="guest-home"
-  data-guest-home
-  hidden
-  aria-labelledby="guest-home-title"
->
-  <p class="guest-home__eyebrow">CAMERON &amp; ALEX · {wedding.date.display}</p>
-  <h1 id="guest-home-title" tabindex="-1">
-    Welcome, <span data-guest-name></span>
-  </h1>
-  <p class="guest-home__intro">
-    Your invitation, all in one place. We’re so glad you’re part of our day.
-  </p>
-  <p class="onboarding__preview" data-home-preview hidden>
-    Local preview · fictional guests · saved only in this browser.
-  </p>
-  <div class="guest-home__invitation">
-    <p class="guest-home__eyebrow" data-home-type></p>
-    <h2 data-home-household></h2>
-    <ul class="onboarding__guests" data-home-guests></ul>
-    <p>
-      {wedding.venue.name}, {wedding.venue.location}<br />{wedding.date.display}
-    </p>
-  </div>
-  <div class="guest-home__next">
-    <h2>You’re all set</h2>
-    <p>
-      Your account is linked to your invitation. RSVP, meal choices and more
-      wedding details will follow here.
-    </p>
-    <p class="guest-help">Your attendance has not been recorded yet.</p>
-  </div>
-  <p class="guest-feedback" data-home-feedback role="status" hidden></p>
-  <button type="button" class="guest-link" data-signout>Sign out</button>
-</section>
+<div class="guest-story" data-guest-home hidden>
+  <section
+    class="guest-story__section guest-welcome"
+    id="welcome"
+    aria-labelledby="guest-home-title"
+  >
+    <div class="guest-welcome__masthead">
+      <div class="guest-welcome__shade" aria-hidden="true"></div>
+
+      <div class="guest-welcome__stationery">
+        <p class="guest-welcome__eyebrow">A VERY WARM WELCOME</p>
+        <h1 id="guest-home-title" tabindex="-1">
+          Welcome, <span data-guest-name></span>
+        </h1>
+
+        <div class="guest-welcome__rule" aria-hidden="true">
+          <span></span>
+        </div>
+
+        <p class="guest-welcome__date">{wedding.date.display}</p>
+        <p class="guest-welcome__venue">
+          {wedding.venue.name}<br />
+          {wedding.venue.location}
+        </p>
+
+        <p class="guest-welcome__intro">
+          Join us for a day of love, laughter and unforgettable memories in the
+          heart of Hampton Court.
+        </p>
+
+        <p class="guest-welcome__handwritten">So happy you’re here ♡</p>
+
+        <p class="onboarding__preview" data-home-preview hidden>
+          Local preview · fictional guests · saved only in this browser.
+        </p>
+      </div>
+    </div>
+
+    <div class="guest-welcome__body">
+      <section
+        class="guest-countdown"
+        data-welcome-countdown={wedding.date.iso}
+        aria-label={`Countdown to ${wedding.date.display}`}
+      >
+        <div>
+          <strong data-countdown-days>000</strong>
+          <span>Days</span>
+        </div>
+        <i aria-hidden="true"></i>
+        <div>
+          <strong data-countdown-hours>00</strong>
+          <span>Hours</span>
+        </div>
+        <i aria-hidden="true"></i>
+        <div>
+          <strong data-countdown-minutes>00</strong>
+          <span>Mins</span>
+        </div>
+        <i aria-hidden="true"></i>
+        <div>
+          <strong data-countdown-seconds>00</strong>
+          <span>Secs</span>
+        </div>
+      </section>
+
+      <div class="guest-welcome__content">
+        <article class="guest-detail-card guest-detail-card--invitation">
+          <div class="guest-detail-card__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+
+          <div class="guest-detail-card__copy">
+            <p class="guest-detail-card__label">Your invitation</p>
+            <h2 data-home-type></h2>
+            <p class="guest-detail-card__household" data-home-household></p>
+            <p class="guest-detail-card__label guest-detail-card__label--guests">
+              You’re invited
+            </p>
+            <ul class="guest-detail-card__guests" data-home-guests></ul>
+          </div>
+        </article>
+
+        <div class="guest-welcome__details-grid">
+          <article class="guest-detail-card guest-detail-card--timing">
+            <div class="guest-detail-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="17" rx="2"></rect>
+                <path d="M16 2v4M8 2v4M3 10h18"></path>
+              </svg>
+            </div>
+            <div class="guest-detail-card__copy">
+              <p class="guest-detail-card__label">Date &amp; timings</p>
+              <h2>Friday, 25 June 2027</h2>
+              <p>
+                We’ll add arrival, ceremony and celebration timings here once
+                the final schedule is confirmed.
+              </p>
+            </div>
+          </article>
+
+          <article class="guest-detail-card guest-detail-card--venue">
+            <div class="guest-detail-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"></path>
+                <circle cx="12" cy="10" r="2.5"></circle>
+              </svg>
+            </div>
+            <div class="guest-detail-card__copy">
+              <p class="guest-detail-card__label">The venue</p>
+              <h2>{wedding.venue.name}, {wedding.venue.location}</h2>
+              <p>Hampton Court Road, East Molesey</p>
+            </div>
+            <a
+              class="guest-map-button"
+              href={googleMapsDirections}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m22 2-7 20-4-9-9-4Z"></path>
+                <path d="M22 2 11 13"></path>
+              </svg>
+              Open in Google Maps
+            </a>
+          </article>
+        </div>
+
+        <div class="guest-welcome__note">
+          <span aria-hidden="true"></span>
+          <p>
+            This is the start of your wedding guide. Keep scrolling as we add
+            your menu, travel information and the social &amp; honeymoon pages.
+          </p>
+          <span aria-hidden="true"></span>
+        </div>
+
+        <p class="guest-feedback" data-home-feedback role="status" hidden></p>
+        <button
+          type="button"
+          class="guest-link guest-welcome__signout"
+          data-signout
+        >
+          Sign out
+        </button>
+
+        <div class="guest-story__progress" aria-label="Page 1 of 4">
+          <span class="is-active"></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  const countdown = document.querySelector<HTMLElement>(
+    "[data-welcome-countdown]",
+  );
+
+  if (countdown) {
+    const date = countdown.dataset.welcomeCountdown;
+    const target = new Date(date + "T00:00:00+01:00").getTime();
+
+    const days = countdown.querySelector<HTMLElement>("[data-countdown-days]");
+    const hours = countdown.querySelector<HTMLElement>("[data-countdown-hours]");
+    const minutes = countdown.querySelector<HTMLElement>(
+      "[data-countdown-minutes]",
+    );
+    const seconds = countdown.querySelector<HTMLElement>(
+      "[data-countdown-seconds]",
+    );
+
+    const update = () => {
+      const remaining = Math.max(0, target - Date.now());
+      const totalSeconds = Math.floor(remaining / 1000);
+
+      if (days)
+        days.textContent = String(Math.floor(totalSeconds / 86400)).padStart(
+          3,
+          "0",
+        );
+      if (hours)
+        hours.textContent = String(
+          Math.floor((totalSeconds % 86400) / 3600),
+        ).padStart(2, "0");
+      if (minutes)
+        minutes.textContent = String(
+          Math.floor((totalSeconds % 3600) / 60),
+        ).padStart(2, "0");
+      if (seconds)
+        seconds.textContent = String(totalSeconds % 60).padStart(2, "0");
+    };
+
+    update();
+    window.setInterval(update, 1000);
+  }
+</script>
