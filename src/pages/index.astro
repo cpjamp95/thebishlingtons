@@ -2,7 +2,8 @@
 import Layout from "../layouts/Layout.astro";
 import AppShell from "../components/layout/AppShell.astro";
 import HeroSection from "../components/sections/HeroSection.astro";
-import WelcomeSection from "../components/sections/WelcomeSection.astro";\nimport MenuSection from "../components/sections/MenuSection.astro";
+import WelcomeSection from "../components/sections/WelcomeSection.astro";
+import MenuSection from "../components/sections/MenuSection.astro";
 import { wedding } from "../data/wedding";
 ---
 
@@ -13,7 +14,10 @@ import { wedding } from "../data/wedding";
 
       <div class="home-content">
         <HeroSection />
-        <WelcomeSection />
+        <div class="guest-story" data-guest-home hidden>
+          <WelcomeSection />
+          <MenuSection />
+        </div>
       </div>
     </main>
   </AppShell>

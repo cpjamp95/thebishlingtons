@@ -35,7 +35,8 @@ export const supabase =
     : null;
 export const configured = preview || Boolean(supabase);
 const pendingKey = "bishlingtons.pending-invitation";
-const previewKey = "bishlingtons.preview-home";\nconst previewMenuKey = "bishlingtons.preview-menu";
+const previewKey = "bishlingtons.preview-home";
+const previewMenuKey = "bishlingtons.preview-menu";
 export const normaliseCode = (value: string) =>
   value.replace(/[\s-]/g, "").toUpperCase();
 export function rememberCode(code: string) {
@@ -215,6 +216,7 @@ export async function signOut() {
     if (error) throw new Error("We could not sign you out. Please try again.");
   }
   localStorage.removeItem(previewKey);
+  localStorage.removeItem(previewMenuKey);
   forgetCode();
 }
 export const returnUrl = () =>
