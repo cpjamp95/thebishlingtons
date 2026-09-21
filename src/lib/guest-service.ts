@@ -16,6 +16,24 @@ export type MealGuest = {
   updated_at: string | null;
 };
 export type MenuChoices = { guests: MealGuest[] };
+export type GuestMessage = {
+  id: string;
+  author_name: string;
+  message: string;
+  created_at: string;
+};
+export type HoneymoonSuggestion = {
+  id: string;
+  author_name: string;
+  destination: string;
+  story: string;
+  photo_path: string | null;
+  created_at: string;
+};
+export type SocialFeed = {
+  messages: GuestMessage[];
+  suggestions: HoneymoonSuggestion[];
+};
 const url = import.meta.env.PUBLIC_SUPABASE_URL?.trim() || weddingBackend.url;
 const key =
   import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() ||
@@ -37,6 +55,7 @@ export const configured = preview || Boolean(supabase);
 const pendingKey = "bishlingtons.pending-invitation";
 const previewKey = "bishlingtons.preview-home";
 const previewMenuKey = "bishlingtons.preview-menu";
+const previewSocialKey = "bishlingtons.preview-social";
 export const normaliseCode = (value: string) =>
   value.replace(/[\s-]/g, "").toUpperCase();
 export function rememberCode(code: string) {
@@ -210,6 +229,102 @@ export async function saveMealChoices(
   return data as MealGuest;
 }
 
+export function honeymoonPhotoUrl(path: string | null) {
+  if (!path || !supabase) return "";
+  return supabase.storage.from("honeymoon-suggestions").getPublicUrl(path).data.publicUrl;
+}
+
+export async function loadSocialFeed(): Promise<SocialFeed> {
+  if (preview) {
+    try {
+      return JSON.parse(localStorage.getItem(previewSocialKey) || '{"messages":[],"suggestions":[]}');
+    } catch {
+      localStorage.removeItem(previewSocialKey);
+      return { messages: [], suggestions: [] };
+    }
+  }
+  if (!supabase) return { messages: [], suggestions: [] };
+  const { data, error } = await supabase.rpc("social_feed");
+  if (error) throw new Error("We could not load the social page. Please try again.");
+  return (data as SocialFeed) ?? { messages: [], suggestions: [] };
+}
+
+export async function addGuestMessage(message: string): Promise<GuestMessage> {
+  const trimmed = message.trim();
+  if (!trimmed) throw new Error("Please write a message first.");
+  if (trimmed.length > 600) throw new Error("Please keep your message under 600 characters.");
+  if (preview) {
+    const feed = await loadSocialFeed();
+    const item: GuestMessage = {
+      id: crypto.randomUUID(),
+      author_name: "Preview Guest",
+      message: trimmed,
+      created_at: new Date().toISOString(),
+    };
+    feed.messages.unshift(item);
+    localStorage.setItem(previewSocialKey, JSON.stringify(feed));
+    return item;
+  }
+  if (!supabase) throw new Error("Guest messages are not available yet.");
+  const { data, error } = await supabase.rpc("add_guest_message", {
+    message_text: trimmed,
+  });
+  if (error) throw new Error("We could not save your message. Please try again.");
+  return data as GuestMessage;
+}
+
+export async function uploadHoneymoonPhoto(file: File): Promise<string> {
+  if (preview) return "";
+  if (!supabase) throw new Error("Photo upload is not available yet.");
+  if (file.size > 5 * 1024 * 1024) throw new Error("Please choose an image smaller than 5 MB.");
+  if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+    throw new Error("Please upload a JPG, PNG or WebP image.");
+  }
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) throw new Error("Please sign in again before uploading.");
+  const extension = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+  const path = userData.user.id + "/" + crypto.randomUUID() + "." + extension;
+  const { error } = await supabase.storage
+    .from("honeymoon-suggestions")
+    .upload(path, file, { cacheControl: "3600", upsert: false });
+  if (error) throw new Error("We could not upload that photo. Please try again.");
+  return path;
+}
+
+export async function addHoneymoonSuggestion(
+  destination: string,
+  story: string,
+  photoPath: string | null,
+): Promise<HoneymoonSuggestion> {
+  const place = destination.trim();
+  const copy = story.trim();
+  if (!place) throw new Error("Please add a destination.");
+  if (!copy) throw new Error("Tell us what makes it special.");
+  if (place.length > 120 || copy.length > 700) throw new Error("Please shorten your suggestion a little.");
+  if (preview) {
+    const feed = await loadSocialFeed();
+    const item: HoneymoonSuggestion = {
+      id: crypto.randomUUID(),
+      author_name: "Preview Guest",
+      destination: place,
+      story: copy,
+      photo_path: null,
+      created_at: new Date().toISOString(),
+    };
+    feed.suggestions.unshift(item);
+    localStorage.setItem(previewSocialKey, JSON.stringify(feed));
+    return item;
+  }
+  if (!supabase) throw new Error("Honeymoon suggestions are not available yet.");
+  const { data, error } = await supabase.rpc("add_honeymoon_suggestion", {
+    destination_text: place,
+    story_text: copy,
+    photo_path_text: photoPath,
+  });
+  if (error) throw new Error("We could not save your suggestion. Please try again.");
+  return data as HoneymoonSuggestion;
+}
+
 export async function signOut() {
   if (supabase) {
     const { error } = await supabase.auth.signOut();
@@ -217,6 +332,7 @@ export async function signOut() {
   }
   localStorage.removeItem(previewKey);
   localStorage.removeItem(previewMenuKey);
+  localStorage.removeItem(previewSocialKey);
   forgetCode();
 }
 export const returnUrl = () =>

@@ -1,0 +1,131 @@
+---
+import { wedding } from "../../data/wedding";
+---
+
+<section class="guest-story__section guest-social" id="share" aria-labelledby="social-title">
+  <div class="guest-social__inner" data-social-app>
+    <header class="guest-social__header">
+      <p class="guest-social__eyebrow"><span></span> SHARE THE LOVE <span></span></p>
+      <h2 id="social-title">Memories, Messages<br />&amp; Our Next Adventure</h2>
+      <p class="guest-social__strap">Your stories mean the world to us</p>
+      <p class="guest-social__intro">
+        We’re so excited to celebrate with you. Leave us a message, share a
+        favourite honeymoon destination, or contribute to our honeymoon fund.
+      </p>
+      <p class="guest-social__handwritten guest-social__handwritten--left" aria-hidden="true">
+        People<br />Places<br />Memories ♡
+      </p>
+      <p class="guest-social__handwritten guest-social__handwritten--right" aria-hidden="true">
+        Good friends<br />Great adventures<br />Brighter together ♡
+      </p>
+    </header>
+
+    <section class="social-panel" aria-labelledby="messages-title">
+      <div class="social-panel__heading">
+        <div>
+          <p class="social-panel__kicker">♡</p>
+          <div>
+            <h3 id="messages-title">Guest Messages</h3>
+            <p>Leave a message, a piece of advice, or a special memory.</p>
+          </div>
+        </div>
+        <button type="button" class="social-action" data-open-message>✎ <span>Write a message</span></button>
+      </div>
+
+      <div class="social-carousel-shell">
+        <button type="button" class="social-carousel-arrow social-carousel-arrow--prev" data-message-prev aria-label="Previous guest message">‹</button>
+        <div class="social-carousel social-carousel--messages" data-message-carousel></div>
+        <button type="button" class="social-carousel-arrow social-carousel-arrow--next" data-message-next aria-label="Next guest message">›</button>
+      </div>
+      <div class="social-carousel-dots" data-message-dots></div>
+    </section>
+
+    <section class="social-panel" aria-labelledby="honeymoon-title">
+      <div class="social-panel__heading">
+        <div>
+          <p class="social-panel__kicker">✈</p>
+          <div>
+            <h3 id="honeymoon-title">Where Should We Go on Honeymoon?</h3>
+            <p>Share a favourite destination and, if you like, a photo from your travels there.</p>
+          </div>
+        </div>
+        <button type="button" class="social-action" data-open-suggestion>▧ <span>Add your suggestion</span></button>
+      </div>
+
+      <div class="social-carousel-shell">
+        <button type="button" class="social-carousel-arrow social-carousel-arrow--prev" data-suggestion-prev aria-label="Previous honeymoon suggestion">‹</button>
+        <div class="social-carousel social-carousel--suggestions" data-suggestion-carousel></div>
+        <button type="button" class="social-carousel-arrow social-carousel-arrow--next" data-suggestion-next aria-label="Next honeymoon suggestion">›</button>
+      </div>
+      <div class="social-carousel-dots" data-suggestion-dots></div>
+    </section>
+
+    <section class="honeymoon-fund" aria-labelledby="fund-title">
+      <div class="honeymoon-fund__icon" aria-hidden="true">🎁</div>
+      <div>
+        <h3 id="fund-title">Our Honeymoon Fund</h3>
+        <p>
+          Your presence at our wedding is the greatest gift of all. If you’d
+          like to contribute towards our honeymoon, we’d be so grateful. We’re
+          hoping to create unforgettable memories rather than receive traditional gifts.
+        </p>
+        <button type="button" class="honeymoon-fund__button" disabled>
+          Honeymoon fund link coming soon ↗
+        </button>
+      </div>
+      <p class="honeymoon-fund__script" aria-hidden="true">Adventures<br />are better<br />together ♡</p>
+    </section>
+
+    <p class="social-status" data-social-status role="status" aria-live="polite" hidden></p>
+
+    <div class="guest-story__progress" aria-label="Page 4 of 4">
+      <span></span><span></span><span></span><span class="is-active"></span>
+    </div>
+  </div>
+
+  <footer class="social-thankyou">
+    <div class="social-thankyou__shade" aria-hidden="true"></div>
+    <div class="social-thankyou__content">
+      <span class="social-thankyou__heart" aria-hidden="true">♡</span>
+      <h3>Thank You</h3>
+      <p>We can’t wait to celebrate with you</p>
+      <span class="social-thankyou__rule" aria-hidden="true"></span>
+      <strong>The Bishlingtons</strong>
+      <small>{wedding.date.display} · {wedding.venue.name}, {wedding.venue.location}</small>
+    </div>
+  </footer>
+
+  <dialog class="social-dialog" data-message-dialog>
+    <form method="dialog" class="social-dialog__card" data-message-form>
+      <button type="button" class="social-dialog__close" data-close-message aria-label="Close">×</button>
+      <p class="social-dialog__eyebrow">Guest messages</p>
+      <h3>Leave us a message</h3>
+      <p>Anything from wedding advice to a favourite memory — we’d love to read it.</p>
+      <label for="guest-message">Your message</label>
+      <textarea id="guest-message" name="message" maxlength="600" rows="6" required></textarea>
+      <button type="submit" class="social-dialog__submit">Share your message ♡</button>
+      <p class="social-dialog__feedback" data-message-feedback hidden></p>
+    </form>
+  </dialog>
+
+  <dialog class="social-dialog" data-suggestion-dialog>
+    <form method="dialog" class="social-dialog__card" data-suggestion-form>
+      <button type="button" class="social-dialog__close" data-close-suggestion aria-label="Close">×</button>
+      <p class="social-dialog__eyebrow">Our next adventure</p>
+      <h3>Suggest a honeymoon destination</h3>
+      <p>Tell us somewhere you loved and what made it special.</p>
+      <label for="honeymoon-destination">Destination</label>
+      <input id="honeymoon-destination" name="destination" maxlength="120" required />
+      <label for="honeymoon-story">Why should we go?</label>
+      <textarea id="honeymoon-story" name="story" maxlength="700" rows="5" required></textarea>
+      <label for="honeymoon-photo">A photo from your trip <span>(optional · max 5 MB)</span></label>
+      <input id="honeymoon-photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp" />
+      <button type="submit" class="social-dialog__submit">Add your suggestion →</button>
+      <p class="social-dialog__feedback" data-suggestion-feedback hidden></p>
+    </form>
+  </dialog>
+</section>
+
+<script>
+  import "../../scripts/social";
+</script>

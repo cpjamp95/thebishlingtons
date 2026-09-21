@@ -1,4 +1,5 @@
 import { hydrateMenu } from "./menu";
+import { hydrateSocial } from "./social";
 import {
   configured,
   preview,
@@ -122,6 +123,7 @@ function renderHome(data: GuestHome) {
   avatar.setAttribute("aria-label", "Your wedding invitation");
   get("#guest-home-title").focus({ preventScroll: true });
   void hydrateMenu(data.display_name);
+  void hydrateSocial();
 }
 async function restore() {
   if (recovering) {
