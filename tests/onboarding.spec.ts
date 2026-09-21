@@ -23,8 +23,36 @@ test("mobile preview: invalid code, household, refresh, sign out and safe text",
     page.getByRole("heading", { name: "Welcome, Cameron <script>" }),
   ).toBeVisible();
   await expect(
-    page.getByText("Your attendance has not been recorded yet."),
+    page.getByRole("heading", { name: "Tell us who’s coming" }),
   ).toBeVisible();
+  await page.getByRole("button", { name: "Joyfully accept" }).first().click();
+  await page
+    .getByPlaceholder("Vegetarian, vegan, gluten-free, etc.")
+    .first()
+    .fill("Vegetarian");
+  await page
+    .getByPlaceholder(
+      "Please tell us about any food allergies, or leave blank.",
+    )
+    .first()
+    .fill("Peanuts");
+  await page.getByRole("button", { name: /Save RSVP/ }).first().click();
+  await expect(
+    page.getByRole("status").filter({ hasText: "RSVP saved" }),
+  ).toBeVisible();
+
+  await page.locator('[data-menu-option="butternut-squash-soup"]').click();
+  await page.locator('[data-menu-option="wild-mushroom-risotto"]').click();
+  await page.locator('[data-menu-option="chocolate-fondant"]').click();
+  await page.getByRole("button", { name: /Save choices for Jamie Taylor/ }).click();
+  await expect(
+    page.getByRole("status").filter({ hasText: "Choices saved" }),
+  ).toBeVisible();
+
+  await page.getByRole("button", { name: "Open your wedding profile" }).click();
+  await expect(page.getByRole("heading", { name: "Food choices" })).toBeVisible();
+  await expect(page.getByText("Peanuts", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Close guest profile" }).click();
   await page.reload();
   await expect(
     page.getByRole("heading", { name: "Welcome, Cameron <script>" }),
