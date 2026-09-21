@@ -7,20 +7,32 @@ export type Household = {
   guests: { name: string }[];
 };
 export type GuestHome = Household & { display_name: string };
+export type AttendanceStatus = "attending" | "declined" | null;
+export type RsvpGuest = {
+  id: string;
+  name: string;
+  attendance_status: AttendanceStatus;
+  dietary_requirements: string | null;
+  allergies: string | null;
+  updated_at: string | null;
+};
+export type RsvpDetails = { guests: RsvpGuest[] };
 export type MealGuest = {
   id: string;
   name: string;
+  attendance_status: AttendanceStatus;
   starter: string | null;
   main: string | null;
   dessert: string | null;
   updated_at: string | null;
 };
-export type MenuChoices = { guests: MealGuest[] };
+export type MenuChoices = { menu_version: number; guests: MealGuest[] };
 export type GuestMessage = {
   id: string;
   author_name: string;
   message: string;
   created_at: string;
+  is_owner: boolean;
 };
 export type HoneymoonSuggestion = {
   id: string;
@@ -29,6 +41,7 @@ export type HoneymoonSuggestion = {
   story: string;
   photo_path: string | null;
   created_at: string;
+  is_owner: boolean;
 };
 export type SocialFeed = {
   messages: GuestMessage[];
@@ -37,6 +50,9 @@ export type SocialFeed = {
 export type ProfileGuest = {
   id: string;
   name: string;
+  attendance_status: AttendanceStatus;
+  dietary_requirements: string | null;
+  allergies: string | null;
   starter: string | null;
   main: string | null;
   dessert: string | null;
@@ -48,11 +64,24 @@ export type ProfileSummary = {
   guest_type: "day" | "evening" | "weddingParty";
   guests: ProfileGuest[];
   tasks: {
+    rsvp_complete: boolean;
+    rsvp_guests_remaining: number;
     meals_complete: boolean;
     meal_guests_remaining: number;
     message_complete: boolean;
     suggestion_complete: boolean;
   };
+};
+export type AdminHousehold = {
+  id: string;
+  label: string;
+  guest_type: "day" | "evening" | "weddingParty";
+  guests: ProfileGuest[];
+};
+export type AdminDashboard = {
+  households: AdminHousehold[];
+  messages: Omit<GuestMessage, "is_owner">[];
+  suggestions: Omit<HoneymoonSuggestion, "is_owner">[];
 };
 const url = import.meta.env.PUBLIC_SUPABASE_URL?.trim() || weddingBackend.url;
 const key =
@@ -75,6 +104,7 @@ export const configured = preview || Boolean(supabase);
 const pendingKey = "bishlingtons.pending-invitation";
 const previewKey = "bishlingtons.preview-home";
 const previewMenuKey = "bishlingtons.preview-menu";
+const previewRsvpKey = "bishlingtons.preview-rsvp";
 const previewSocialKey = "bishlingtons.preview-social";
 export const normaliseCode = (value: string) =>
   value.replace(/[\s-]/g, "").toUpperCase();
@@ -171,6 +201,87 @@ export function savePreview(household: Household, name: string) {
   );
   forgetCode();
 }
+
+export async function loadRsvpDetails(): Promise<RsvpDetails> {
+  if (preview) {
+    const home = await loadHome();
+    if (!home) return { guests: [] };
+    let saved: Record<string, Omit<RsvpGuest, "id" | "name">> = {};
+    try {
+      saved = JSON.parse(localStorage.getItem(previewRsvpKey) || "{}");
+    } catch {
+      localStorage.removeItem(previewRsvpKey);
+    }
+    return {
+      guests: home.guests.map((guest, index) => {
+        const id = "preview-" + index;
+        return {
+          id,
+          name: guest.name,
+          attendance_status: saved[id]?.attendance_status ?? null,
+          dietary_requirements: saved[id]?.dietary_requirements ?? null,
+          allergies: saved[id]?.allergies ?? null,
+          updated_at: saved[id]?.updated_at ?? null,
+        };
+      }),
+    };
+  }
+  if (!supabase) return { guests: [] };
+  const { data, error } = await supabase.rpc("rsvp_details");
+  if (error)
+    throw new Error("We could not load your RSVP details. Please try again.");
+  return (data as RsvpDetails) ?? { guests: [] };
+}
+
+export async function saveGuestRsvp(
+  guestId: string,
+  attendance: Exclude<AttendanceStatus, null>,
+  dietary: string,
+  allergies: string,
+): Promise<RsvpGuest> {
+  if (preview) {
+    const details = await loadRsvpDetails();
+    const guest = details.guests.find((item) => item.id === guestId);
+    if (!guest) throw new Error("That guest could not be found.");
+    const updated: RsvpGuest = {
+      ...guest,
+      attendance_status: attendance,
+      dietary_requirements:
+        attendance === "attending" ? dietary.trim() || null : null,
+      allergies: attendance === "attending" ? allergies.trim() || null : null,
+      updated_at: new Date().toISOString(),
+    };
+    let saved: Record<string, unknown> = {};
+    try {
+      saved = JSON.parse(localStorage.getItem(previewRsvpKey) || "{}");
+    } catch {
+      saved = {};
+    }
+    saved[guestId] = {
+      attendance_status: updated.attendance_status,
+      dietary_requirements: updated.dietary_requirements,
+      allergies: updated.allergies,
+      updated_at: updated.updated_at,
+    };
+    localStorage.setItem(previewRsvpKey, JSON.stringify(saved));
+    return updated;
+  }
+  if (!supabase) throw new Error("RSVPs are not available yet.");
+  const { data, error } = await supabase.rpc("save_guest_rsvp", {
+    target_guest_id: guestId,
+    attendance,
+    dietary_text: dietary.trim() || null,
+    allergies_text: allergies.trim() || null,
+  });
+  if (error)
+    throw new Error(
+      error.message.includes("GUEST_ACCESS_DENIED")
+        ? "That guest is not part of this invitation."
+        : "We could not save that RSVP. Please try again.",
+    );
+  return data as RsvpGuest;
+}
+
 export async function loadMenuChoices(): Promise<MenuChoices> {
   if (preview) {
     const home = await loadHome();
@@ -184,12 +295,16 @@ export async function loadMenuChoices(): Promise<MenuChoices> {
     } catch {
       localStorage.removeItem(previewMenuKey);
     }
+    const rsvp = await loadRsvpDetails();
     return {
+      menu_version: 1,
       guests: home.guests.map((guest, index) => {
         const id = "preview-" + index;
         return {
           id,
           name: guest.name,
+          attendance_status:
+            rsvp.guests.find((item) => item.id === id)?.attendance_status ?? null,
           starter: saved[id]?.starter ?? null,
           main: saved[id]?.main ?? null,
           dessert: saved[id]?.dessert ?? null,
@@ -198,11 +313,11 @@ export async function loadMenuChoices(): Promise<MenuChoices> {
       }),
     };
   }
-  if (!supabase) return { guests: [] };
+  if (!supabase) return { menu_version: 1, guests: [] };
   const { data, error } = await supabase.rpc("menu_choices");
   if (error)
     throw new Error("We could not load your menu choices. Please try again.");
-  return (data as MenuChoices) ?? { guests: [] };
+  return (data as MenuChoices) ?? { menu_version: 1, guests: [] };
 }
 
 export async function saveMealChoices(
@@ -213,6 +328,8 @@ export async function saveMealChoices(
     const menu = await loadMenuChoices();
     const guest = menu.guests.find((item) => item.id === guestId);
     if (!guest) throw new Error("That guest could not be found.");
+    if (guest.attendance_status !== "attending")
+      throw new Error("Complete this guest’s RSVP before choosing food.");
     const updated: MealGuest = {
       ...guest,
       ...choices,
@@ -244,14 +361,19 @@ export async function saveMealChoices(
     throw new Error(
       error.message.includes("GUEST_ACCESS_DENIED")
         ? "That guest is not part of this invitation."
-        : "We could not save those choices. Please try again.",
+        : error.message.includes("GUEST_NOT_ATTENDING")
+          ? "Complete this guest’s RSVP before choosing food."
+          : "We could not save those choices. Please try again.",
     );
   return data as MealGuest;
 }
 
-export function honeymoonPhotoUrl(path: string | null) {
+export async function honeymoonPhotoUrl(path: string | null) {
   if (!path || !supabase) return "";
-  return supabase.storage.from("honeymoon-suggestions").getPublicUrl(path).data.publicUrl;
+  const { data, error } = await supabase.storage
+    .from("honeymoon-suggestions")
+    .createSignedUrl(path, 3600);
+  return error ? "" : data.signedUrl;
 }
 
 export async function loadSocialFeed(): Promise<SocialFeed> {
@@ -387,6 +509,7 @@ export async function signOut() {
   }
   localStorage.removeItem(previewKey);
   localStorage.removeItem(previewMenuKey);
+  localStorage.removeItem(previewRsvpKey);
   localStorage.removeItem(previewSocialKey);
   forgetCode();
 }
