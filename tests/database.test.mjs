@@ -30,7 +30,14 @@ test("invitation lookup and membership enforce household isolation in PostgreSQL
     for (const name of (await readdir(migrations))
       .filter((name) => name.endsWith(".sql"))
       .sort()) {
-      await db.exec(await readFile(new URL(name, migrations), "utf8"));
+      try {
+        await db.exec(await readFile(new URL(name, migrations), "utf8"));
+      } catch (error) {
+        throw new Error(
+          "Migration " + name + " failed: " +
+            (error instanceof Error ? error.message : String(error)),
+        );
+      }
     }
     const a = "11111111-1111-4111-8111-111111111111";
     const b = "22222222-2222-4222-8222-222222222222";
