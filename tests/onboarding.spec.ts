@@ -52,7 +52,10 @@ test("mobile preview: invalid code, household, refresh, sign out and safe text",
   await page.getByRole("button", { name: "Open your wedding profile" }).click();
   await expect(page.getByRole("heading", { name: "Food choices" })).toBeVisible();
   await expect(page.getByText("Peanuts", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Close guest profile" }).click();
+  await page
+    .getByRole("complementary", { name: "Your wedding profile" })
+    .getByRole("button", { name: "Close guest profile" })
+    .click();
   await page.reload();
   await expect(
     page.getByRole("heading", { name: "Welcome, Cameron <script>" }),
