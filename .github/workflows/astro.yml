@@ -66,6 +66,21 @@ jobs:
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
         working-directory: ${{ env.BUILD_PATH }}
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Database tests
+        run: npm run test:db
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Mobile preview smoke tests
+        run: npm run test:ui
+
+      - name: Auth smoke tests
+        run: npm run test:auth
+
       - name: Build with Astro
         env:
           PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL }}
