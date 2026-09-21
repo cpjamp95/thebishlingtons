@@ -9,13 +9,23 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "dev:preview": "node scripts/preview.mjs",
+    "test:db": "node --test tests/database.test.mjs",
+    "test:ui": "playwright test tests/onboarding.spec.ts",
+    "test:auth": "playwright test tests/auth.spec.ts",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@supabase/supabase-js": "2.116.0",
     "astro": "^7.0.3"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.2",
     "prettier": "^3.9.3",
-    "prettier-plugin-astro": "^0.14.1"
+    "prettier-plugin-astro": "^0.14.1",
+    "typescript": "^7.0.2"
   }
 }

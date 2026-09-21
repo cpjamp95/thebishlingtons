@@ -37,6 +37,7 @@ import { wedding } from "../../data/wedding";
         class="invitation-card__rsvp"
         data-flip-card
         data-card-mode="rsvp"
+        aria-label="RSVP"
       >
         RSVP
       </button>
@@ -55,175 +56,183 @@ import { wedding } from "../../data/wedding";
     </div>
   </article>
 
-  <article class="invitation-card invitation-card--back">
+  <article
+    class="invitation-card invitation-card--back"
+    inert
+    aria-hidden="true"
+  >
     <InvitationFrame />
-
-    <div class="invitation-card__content invitation-card__content--back">
-      <div class="invitation-card__panel invitation-card__panel--rsvp">
-        <p class="invitation-card__eyebrow">RSVP</p>
-
-        <h2 class="invitation-card__back-title">Enter your password</h2>
-
-        <p class="invitation-card__back-copy">
-          Please enter the password included with your invitation.
-        </p>
-
-        <form class="invitation-card__form" data-guest-password-form>
+    <div class="onboarding">
+      <p class="onboarding__step" data-step>YOUR INVITATION</p>
+      <p class="onboarding__preview" data-preview-note hidden>
+        Local preview · fictional guests · no real account is created.
+      </p>
+      <section data-panel="code" hidden>
+        <h2 tabindex="-1">You’re invited</h2>
+        <p>Enter the invitation code included with your invitation.</p>
+        <form data-code-form>
+          <label for="invitation-code">Invitation code</label>
           <input
-            type="password"
-            name="guest-password"
-            placeholder="Password"
-            aria-label="Guest password"
+            id="invitation-code"
+            name="code"
+            required
+            maxlength="80"
             autocomplete="off"
-            data-guest-password-input
+            autocapitalize="characters"
+            spellcheck="false"
           />
-
-          <button type="submit" class="invitation-card__rsvp">Continue</button>
+          <button type="submit" class="guest-button">Find my invitation</button>
         </form>
-
-        <p class="invitation-card__error" data-guest-password-error hidden>
-          That password could not be found.
+        <button type="button" class="guest-link" data-panel-link="signin"
+          >Already registered? Sign in</button
+        >
+      </section>
+      <section data-panel="household" hidden>
+        <h2 tabindex="-1">An invitation for you</h2>
+        <p class="onboarding__household" data-household-label></p>
+        <ul class="onboarding__guests" data-household-guests></ul>
+        <p data-household-type></p>
+        <button type="button" class="guest-button" data-confirm-household
+          >Yes, that’s us</button
+        >
+        <button type="button" class="guest-link" data-change-code
+          >Use a different code</button
+        >
+      </section>
+      <section data-panel="create" hidden>
+        <h2 tabindex="-1">Make yourself at home</h2>
+        <p data-create-copy>
+          Create your account to keep your invitation close.
         </p>
-      </div>
-
-      <div class="invitation-card__panel invitation-card__panel--signin">
-        <p class="invitation-card__eyebrow">SIGN IN</p>
-
-        <h2 class="invitation-card__back-title">Welcome back</h2>
-
-        <p class="invitation-card__back-copy">
-          Sign in to return to your wedding dashboard.
-        </p>
-
-        <form class="invitation-card__form" data-sign-in-form>
+        <form data-create-form>
+          <label for="guest-name">Your name</label>
           <input
-            type="email"
+            id="guest-name"
+            name="name"
+            autocomplete="name"
+            required
+            maxlength="100"
+          />
+          <div data-real-credentials>
+            <label for="create-email">Email address</label>
+            <input
+              id="create-email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              required
+            />
+            <label for="create-password">Password</label>
+            <input
+              id="create-password"
+              name="password"
+              type="password"
+              autocomplete="new-password"
+              minlength="12"
+              required
+              aria-describedby="password-help"
+            />
+            <p id="password-help" class="guest-help">At least 12 characters.</p>
+          </div>
+          <button type="submit" class="guest-button" data-create-submit
+            >Create my account</button
+          >
+        </form>
+        <button type="button" class="guest-link" data-panel-link="signin"
+          >Already have an account? Sign in</button
+        >
+      </section>
+      <section data-panel="signin" hidden>
+        <h2 tabindex="-1">Welcome back</h2>
+        <p>Sign in to your wedding invitation.</p>
+        <form data-signin-form>
+          <label for="signin-email">Email address</label>
+          <input
+            id="signin-email"
             name="email"
-            placeholder="Email address"
-            aria-label="Email address"
-            autocomplete="email"
-          />
-
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            aria-label="Password"
-            autocomplete="current-password"
-          />
-
-          <button type="submit" class="invitation-card__rsvp">Sign In</button>
-        </form>
-      </div>
-
-      <div class="invitation-card__panel invitation-card__panel--create">
-        <p class="invitation-card__eyebrow">WELCOME</p>
-
-        <h2 class="invitation-card__back-title">Create your account</h2>
-
-        <p class="invitation-card__back-copy">
-          Let’s get you set up for the wedding.
-        </p>
-
-        <form class="invitation-card__form" data-create-account-form>
-          <input
-            type="text"
-            name="guest-first-name"
-            placeholder="First name"
-            aria-label="First name"
-            autocomplete="given-name"
-            required
-          />
-
-          <input
-            type="text"
-            name="guest-surname"
-            placeholder="Surname"
-            aria-label="Surname"
-            autocomplete="family-name"
-            required
-          />
-
-          <input
             type="email"
-            name="guest-email"
-            placeholder="Email address"
-            aria-label="Email address"
             autocomplete="email"
+            required
           />
-
+          <label for="signin-password">Password</label>
           <input
+            id="signin-password"
+            name="password"
             type="password"
-            name="guest-account-password"
-            placeholder="Create password"
-            aria-label="Create password"
-            autocomplete="new-password"
+            autocomplete="current-password"
+            required
           />
-
-          <button type="submit" class="invitation-card__rsvp">Continue</button>
+          <button type="submit" class="guest-button">Sign in</button>
         </form>
-      </div>
-
-      <button type="button" class="invitation-card__back-link" data-flip-card>
-        Back to invitation
-      </button>
+        <button type="button" class="guest-link" data-panel-link="reset"
+          >Forgot your password?</button
+        >
+        <button type="button" class="guest-link" data-panel-link="code"
+          >First visit? Find your invitation</button
+        >
+      </section>
+      <section data-panel="verify" hidden>
+        <h2 tabindex="-1">Check your inbox</h2>
+        <p>
+          If a new account can be created with that address, you’ll receive a
+          confirmation email. Follow the link, then return here to sign in.
+        </p>
+        <p>Already registered? Sign in or reset your password instead.</p>
+        <button type="button" class="guest-button" data-panel-link="signin"
+          >Continue to sign in</button
+        >
+      </section>
+      <section data-panel="reset" hidden>
+        <h2 tabindex="-1">Let’s get you back in</h2>
+        <p>We’ll send you a link to choose a new password.</p>
+        <form data-reset-form>
+          <label for="reset-email">Email address</label>
+          <input
+            id="reset-email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            required
+          />
+          <button type="submit" class="guest-button">Send reset link</button>
+        </form>
+        <button type="button" class="guest-link" data-panel-link="signin"
+          >Back to sign in</button
+        >
+      </section>
+      <section data-panel="password" hidden>
+        <h2 tabindex="-1">Choose a new password</h2>
+        <form data-password-form>
+          <label for="new-password">New password</label>
+          <input
+            id="new-password"
+            name="password"
+            type="password"
+            autocomplete="new-password"
+            minlength="12"
+            required
+          />
+          <p class="guest-help">At least 12 characters.</p>
+          <button type="submit" class="guest-button">Save password</button>
+        </form>
+      </section>
+      <p
+        class="guest-feedback"
+        data-feedback
+        role="status"
+        aria-live="polite"
+        hidden
+      >
+      </p>
+      <button
+        type="button"
+        class="guest-link onboarding__back"
+        data-back-invitation>Back to invitation</button
+      >
     </div>
   </article>
 </div>
 
 <script>
-  const guestPasswords = {
-    "bish-day": "day",
-    "bish-evening": "evening",
-    "bish-party": "weddingParty",
-    "bish-admin": "admin",
-  };
-
-  const flipButtons = document.querySelectorAll("[data-flip-card]");
-  const flipCard = document.querySelector(".invitation-flip");
-
-  flipButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      if (!flipCard) return;
-
-      const mode = button.dataset.cardMode;
-
-      if (mode) {
-        flipCard.dataset.mode = mode;
-      }
-
-      flipCard.classList.remove("animate-flip");
-
-      void flipCard.offsetWidth;
-
-      flipCard.classList.add("animate-flip");
-      flipCard.classList.toggle("is-flipped");
-    });
-  });
-
-  const passwordForm = document.querySelector("[data-guest-password-form]");
-  const passwordInput = document.querySelector("[data-guest-password-input]");
-  const passwordError = document.querySelector("[data-guest-password-error]");
-
-  passwordForm?.addEventListener("submit", (event) => {
-    event.preventDefault();
-
-    const password = passwordInput?.value.trim().toLowerCase();
-
-    if (!password || !flipCard) return;
-
-    const guestType = guestPasswords[password];
-
-    if (!guestType) {
-      passwordError?.removeAttribute("hidden");
-      return;
-    }
-
-    passwordError?.setAttribute("hidden", "");
-
-    document.documentElement.dataset.guestType = guestType;
-    flipCard.dataset.mode = "create";
-
-    console.log("Guest type:", guestType);
-  });
+  import "../../scripts/onboarding";
 </script>
