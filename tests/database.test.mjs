@@ -9,8 +9,19 @@ test("invitation lookup and membership enforce household isolation in PostgreSQL
     await db.exec(`create role anon; create role authenticated;
       create schema auth;
       create table auth.users(id uuid primary key, email_confirmed_at timestamptz, raw_user_meta_data jsonb);
-      create function auth.uid() returns uuid language sql as $$ select nullif(current_setting('test.uid', true), '')::uuid $$;
-      grant usage on schema auth to anon, authenticated;
+      create function auth.uid() returns uuid language sql as $ select nullif(current_setting('test.uid', true), '')::uuid $;
+      create schema storage;
+      create table storage.buckets(
+        id text primary key,
+        name text not null,
+        public boolean not null default false,
+        file_size_limit bigint,
+        allowed_mime_types text[]
+      );
+      create table storage.objects(name text, bucket_id text);
+      create function storage.foldername(value text) returns text[]
+      language sql immutable as $ select string_to_array(value, '/') $;
+      grant usage on schema auth, storage to anon, authenticated;
       grant execute on function auth.uid() to anon, authenticated;`);
     await db.exec(
       "alter default privileges in schema public grant execute on functions to anon, authenticated;",
@@ -86,6 +97,23 @@ test("invitation lookup and membership enforce household isolation in PostgreSQL
     await db.exec(`select set_config('test.uid','${user}',false);`);
     await db.query("select public.claim_invitation($1)", [codeA]);
     await db.query("select public.claim_invitation($1)", [codeA]); // idempotent retry
+    const rsvp = (await db.query("select public.rsvp_details() as details")).rows[0].details;
+    assert.equal(rsvp.guests[0].attendance_status, null);
+    const guestA = rsvp.guests[0].id;
+    await db.query(
+      "select public.save_guest_rsvp($1,$2,$3,$4)",
+      [guestA, "attending", "Vegetarian", "Peanuts"],
+    );
+    const savedRsvp = (await db.query("select public.rsvp_details() as details")).rows[0].details;
+    assert.equal(savedRsvp.guests[0].attendance_status, "attending");
+    assert.equal(savedRsvp.guests[0].allergies, "Peanuts");
+    await db.query(
+      "select public.save_menu_choices($1,$2,$3,$4)",
+      [guestA, "butternut-squash-soup", "wild-mushroom-risotto", "chocolate-fondant"],
+    );
+    const menu = (await db.query("select public.menu_choices() as menu")).rows[0].menu;
+    assert.equal(menu.menu_version, 1);
+    assert.equal(menu.guests[0].starter, "butternut-squash-soup");
     await assert.rejects(
       db.query("select public.claim_invitation($1)", [codeB]),
       /ALREADY_LINKED/,
