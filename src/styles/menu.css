@@ -630,3 +630,8 @@
     right: 4px;
   }
 }
+
+.menu-guest-chip.is-declined { opacity: .58; }
+.menu-guest-chip.needs-rsvp { border-style: dashed; }
+.menu-submit__complete { margin: 10px auto 0 !important; color: var(--color-success) !important; font-family: var(--font-display); font-size: 1rem !important; }
+.menu-choice:disabled { cursor: not-allowed; opacity: .52; transform: none; }
