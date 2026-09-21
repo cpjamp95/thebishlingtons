@@ -35,6 +35,7 @@ function setBadge(summary: ProfileSummary | null) {
     return;
   }
   const pending =
+    Number(!summary.tasks.rsvp_complete) +
     Number(!summary.tasks.meals_complete) +
     Number(!summary.tasks.message_complete) +
     Number(!summary.tasks.suggestion_complete);
@@ -78,10 +79,18 @@ function renderMeals(summary: ProfileSummary) {
       const name = document.createElement("strong");
       name.textContent = guest.name;
       const status = document.createElement("span");
-      status.className =
-        "profile-meal-card__status" +
-        (guest.menu_complete ? " is-complete" : "");
-      status.textContent = guest.menu_complete ? "Complete" : "Needs choices";
+      status.className = "profile-meal-card__status";
+      if (guest.attendance_status === "declined") {
+        status.textContent = "Not attending";
+        status.classList.add("is-declined");
+      } else if (guest.attendance_status === null) {
+        status.textContent = "RSVP needed";
+      } else if (guest.menu_complete) {
+        status.textContent = "Complete";
+        status.classList.add("is-complete");
+      } else {
+        status.textContent = "Needs choices";
+      }
       identity.append(name, status);
       head.append(avatar, identity);
 
@@ -92,16 +101,37 @@ function renderMeals(summary: ProfileSummary) {
         ["Dessert", guest.dessert],
       ];
 
-      courses.forEach(([label, value]) => {
-        const row = document.createElement("div");
-        const dt = document.createElement("dt");
-        const dd = document.createElement("dd");
-        dt.textContent = label;
-        dd.textContent = choiceLabel(value);
-        if (!value) dd.classList.add("is-missing");
-        row.append(dt, dd);
-        list.append(row);
-      });
+      if (guest.attendance_status === "attending") {
+        courses.forEach(([label, value]) => {
+          const row = document.createElement("div");
+          const dt = document.createElement("dt");
+          const dd = document.createElement("dd");
+          dt.textContent = label;
+          dd.textContent = choiceLabel(value);
+          if (!value) dd.classList.add("is-missing");
+          row.append(dt, dd);
+          list.append(row);
+        });
+        if (guest.dietary_requirements) {
+          const row = document.createElement("div");
+          const dt = document.createElement("dt");
+          const dd = document.createElement("dd");
+          dt.textContent = "Diet";
+          dd.textContent = guest.dietary_requirements;
+          row.append(dt, dd);
+          list.append(row);
+        }
+        if (guest.allergies) {
+          const row = document.createElement("div");
+          const dt = document.createElement("dt");
+          const dd = document.createElement("dd");
+          dt.textContent = "Allergies";
+          dd.textContent = guest.allergies;
+          dd.classList.add("has-allergy");
+          row.append(dt, dd);
+          list.append(row);
+        }
+      }
 
       card.append(head, list);
       return card;
@@ -146,6 +176,7 @@ function renderTasks(summary: ProfileSummary) {
   if (!tasksContainer || !completeNote) return;
 
   const pending = [
+    !summary.tasks.rsvp_complete,
     !summary.tasks.meals_complete,
     !summary.tasks.message_complete,
     !summary.tasks.suggestion_complete,
@@ -158,12 +189,22 @@ function renderTasks(summary: ProfileSummary) {
 
   tasksContainer.replaceChildren(
     taskRow(
+      "Complete your RSVP",
+      summary.tasks.rsvp_guests_remaining === 1
+        ? "One guest still needs an attendance response."
+        : summary.tasks.rsvp_guests_remaining +
+          " guests still need an attendance response.",
+      summary.tasks.rsvp_complete,
+      "Finish RSVP",
+      "#rsvp-details",
+    ),
+    taskRow(
       "Choose your food",
       summary.tasks.meal_guests_remaining === 1
         ? "One guest still needs a starter, main and dessert."
         : summary.tasks.meal_guests_remaining + " guests still need their choices.",
       summary.tasks.meals_complete,
-      "Choose food",
+      summary.tasks.rsvp_complete ? "Choose food" : "RSVP first",
       "#menu",
     ),
     taskRow(
