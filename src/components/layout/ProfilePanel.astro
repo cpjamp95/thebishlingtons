@@ -1,0 +1,84 @@
+<div
+  class="guest-profile"
+  id="guest-profile"
+  data-guest-profile
+  aria-hidden="true"
+>
+  <button
+    class="guest-profile__backdrop"
+    type="button"
+    data-profile-close
+    tabindex="-1"
+    aria-label="Close guest profile"
+  ></button>
+
+  <aside class="guest-profile__panel" aria-label="Your wedding profile">
+    <div class="guest-profile__top">
+      <div>
+        <p class="guest-profile__eyebrow">Your wedding</p>
+        <h2>Profile</h2>
+      </div>
+      <button
+        class="guest-profile__close"
+        type="button"
+        data-profile-close
+        aria-label="Close guest profile"
+      >
+        ×
+      </button>
+    </div>
+
+    <div class="guest-profile__loading" data-profile-loading>
+      Loading your invitation…
+    </div>
+
+    <div class="guest-profile__content" data-profile-content hidden>
+      <section class="profile-invitation">
+        <div class="profile-invitation__avatar" data-profile-avatar>C</div>
+        <div>
+          <p class="profile-invitation__welcome">
+            Welcome back, <span data-profile-name></span>
+          </p>
+          <h3 data-profile-household></h3>
+          <p data-profile-type></p>
+        </div>
+      </section>
+
+      <section class="profile-section" aria-labelledby="profile-meals-title">
+        <div class="profile-section__heading">
+          <div>
+            <p class="profile-section__eyebrow">Your party</p>
+            <h3 id="profile-meals-title">Food choices</h3>
+          </div>
+          <button type="button" data-profile-jump="#menu">Edit menu →</button>
+        </div>
+        <div class="profile-meals" data-profile-meals></div>
+      </section>
+
+      <section class="profile-section" aria-labelledby="profile-tasks-title">
+        <div class="profile-section__heading">
+          <div>
+            <p class="profile-section__eyebrow">A little reminder</p>
+            <h3 id="profile-tasks-title">Things to finish</h3>
+          </div>
+          <span class="profile-tasks__count" data-profile-task-count></span>
+        </div>
+
+        <div class="profile-tasks" data-profile-tasks></div>
+        <p class="profile-tasks__complete" data-profile-complete hidden>
+          You’re all caught up ♡
+        </p>
+      </section>
+
+      <button type="button" class="profile-signout" data-profile-signout>
+        Sign out
+      </button>
+    </div>
+
+    <p class="guest-profile__error" data-profile-error hidden></p>
+  </aside>
+</div>
+
+<script>
+  import "../../scripts/profile";
+</script>

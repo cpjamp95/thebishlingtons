@@ -34,6 +34,26 @@ export type SocialFeed = {
   messages: GuestMessage[];
   suggestions: HoneymoonSuggestion[];
 };
+export type ProfileGuest = {
+  id: string;
+  name: string;
+  starter: string | null;
+  main: string | null;
+  dessert: string | null;
+  menu_complete: boolean;
+};
+export type ProfileSummary = {
+  display_name: string;
+  household_label: string;
+  guest_type: "day" | "evening" | "weddingParty";
+  guests: ProfileGuest[];
+  tasks: {
+    meals_complete: boolean;
+    meal_guests_remaining: number;
+    message_complete: boolean;
+    suggestion_complete: boolean;
+  };
+};
 const url = import.meta.env.PUBLIC_SUPABASE_URL?.trim() || weddingBackend.url;
 const key =
   import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() ||
@@ -323,6 +343,41 @@ export async function addHoneymoonSuggestion(
   });
   if (error) throw new Error("We could not save your suggestion. Please try again.");
   return data as HoneymoonSuggestion;
+}
+
+export async function loadProfileSummary(): Promise<ProfileSummary> {
+  if (preview) {
+    const [home, menu, social] = await Promise.all([
+      loadHome(),
+      loadMenuChoices(),
+      loadSocialFeed(),
+    ]);
+    if (!home) throw new Error("We could not load your profile.");
+    const guests: ProfileGuest[] = menu.guests.map((guest) => ({
+      id: guest.id,
+      name: guest.name,
+      starter: guest.starter,
+      main: guest.main,
+      dessert: guest.dessert,
+      menu_complete: Boolean(guest.starter && guest.main && guest.dessert),
+    }));
+    return {
+      display_name: home.display_name,
+      household_label: home.label,
+      guest_type: home.guest_type,
+      guests,
+      tasks: {
+        meals_complete: guests.every((guest) => guest.menu_complete),
+        meal_guests_remaining: guests.filter((guest) => !guest.menu_complete).length,
+        message_complete: social.messages.length > 0,
+        suggestion_complete: social.suggestions.length > 0,
+      },
+    };
+  }
+  if (!supabase) throw new Error("Your profile is not available yet.");
+  const { data, error } = await supabase.rpc("profile_summary");
+  if (error) throw new Error("We could not load your profile. Please try again.");
+  return data as ProfileSummary;
 }
 
 export async function signOut() {

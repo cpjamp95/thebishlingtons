@@ -11,7 +11,17 @@ import { wedding } from "../../data/wedding";
   <img src="/images/brand/logo.png" alt="The Bishlingtons" />
 </a>
 
-<button class="header-avatar" aria-label="Guest profile"> ○ </button>
+<button
+  class="header-avatar"
+  type="button"
+  aria-label="Guest profile"
+  aria-expanded="false"
+  aria-controls="guest-profile"
+  data-profile-toggle
+>
+  <span data-avatar-initial>○</span>
+  <span class="header-avatar__badge" data-profile-badge hidden></span>
+</button>
 
 <script>
   const countdown = document.querySelector("[data-wedding-date]");

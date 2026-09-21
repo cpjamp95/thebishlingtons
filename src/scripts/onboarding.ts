@@ -119,8 +119,9 @@ function renderHome(data: GuestHome) {
   get("[data-home-preview]").hidden = !preview;
   get("[data-home-feedback]").hidden = true;
   const avatar = get(".header-avatar");
-  avatar.textContent = data.display_name.trim().slice(0, 1).toUpperCase();
-  avatar.setAttribute("aria-label", "Your wedding invitation");
+  get("[data-avatar-initial]").textContent =
+    data.display_name.trim().slice(0, 1).toUpperCase();
+  avatar.setAttribute("aria-label", "Open your wedding profile");
   get("#guest-home-title").focus({ preventScroll: true });
   void hydrateMenu(data.display_name);
   void hydrateSocial();
@@ -220,8 +221,7 @@ get("[data-change-code]").addEventListener("click", () => {
 });
 get(".header-avatar").addEventListener("click", () => {
   if (busy) return;
-  if (currentHome) renderHome(currentHome);
-  else showPanel("signin");
+  if (!currentHome) showPanel("signin");
 });
 get("[data-preview-note]").hidden = !preview;
 if (preview) {
@@ -342,7 +342,7 @@ get<HTMLButtonElement>("[data-signout]").addEventListener(
       document
         .querySelectorAll<HTMLFormElement>(".onboarding form")
         .forEach((item) => item.reset());
-      get(".header-avatar").textContent = "○";
+      get("[data-avatar-initial]").textContent = "○";
       get(".header-avatar").setAttribute("aria-label", "Guest profile");
       showInvitation();
     } catch (error) {
@@ -363,7 +363,7 @@ supabase?.auth.onAuthStateChange((event) => {
   }
   if (event === "SIGNED_OUT") {
     currentHome = null;
-    get(".header-avatar").textContent = "○";
+    get("[data-avatar-initial]").textContent = "○";
     showInvitation();
   }
   if (event === "SIGNED_IN" && !busy && !recovering) {
